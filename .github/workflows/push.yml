@@ -1,0 +1,46 @@
+name: Checkout and deploy
+on: push
+jobs:
+  checkout:
+    name: 'Checkout'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@master
+        with:
+          ref: 'main'
+
+  checkout_config:
+    name: 'Checkout config'
+    needs: [checkout]
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@master
+        with:
+          ref: 'main'
+          repository: wnynya/Wanyne-API-config
+          token: ${{ secrets.CONFIG_TOKEN }}
+          path: './config'
+          clean: false
+
+  install_dependancy:
+    name: 'Install dependancy'
+    needs: [checkout]
+    runs-on: self-hosted
+    steps:
+      - run: npm cache verify
+      - run: npm install
+
+  update_geoip:
+    name: 'Update GeoIP database'
+    needs: [install_dependancy]
+    runs-on: self-hosted
+    steps:
+      #- run: node ./node_modules/geoip-lite/scripts/updatedb.js license_key=${{ secrets.MAXMIND_LICENSE_KEY }}
+      - run: cp ./data/geoip-lite/* ./node_modules/geoip-lite/data
+
+  deploy:
+    name: 'Deploy'
+    needs: [checkout, checkout_config, install_dependancy, update_geoip]
+    runs-on: self-hosted
+    steps:
+      - run: ./start.sh

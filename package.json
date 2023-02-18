@@ -1,0 +1,27 @@
+{
+  "name": "wanyne-api-amethy",
+  "version": "1.0.0",
+  "author": "Wany <sung@wany.io> (https://wany.io)",
+  "main": "src/app.mjs",
+  "scripts": {
+    "start": "node src/app.mjs -p 29103",
+    "dev": "nodemon src/app.mjs -p 39103 -dev"
+  },
+  "dependencies": {
+    "@wnynya/auth": "^1.0.14",
+    "@wnynya/crypto": "^0.1.2",
+    "@wnynya/express-middlewares": "^1.2.12",
+    "@wnynya/logger": "^0.1.1",
+    "@wnynya/websocket-server": "^1.0.10",
+    "express": "^4.18.2"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "./config",
+      "./src/**/*.mjs"
+    ],
+    "ignore": [
+      "./src/public"
+    ]
+  }
+}
