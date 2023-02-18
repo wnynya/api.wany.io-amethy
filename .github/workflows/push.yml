@@ -38,7 +38,7 @@ jobs:
 
   deploy:
     name: 'Deploy'
-    needs: [checkout, checkout_config, install_dependancy, update_geoip]
+    needs: [checkout, checkout_config, install_dependancy]
     runs-on: self-hosted
     steps:
       - run: ./start.sh
