@@ -6,10 +6,10 @@ import { AuthAccount, AuthElement } from '@wnynya/auth';
 const table = 'amethy_terminal_nodes';
 
 export default class AmethyTerminalNode extends MySQLClass {
-  constructor() {
+  constructor(uid = Crypto.uid()) {
     super(mysql);
 
-    this.uid = Crypto.uid();
+    this.uid = uid;
     this.label = `Server-${Crypto.randomString(6)}`;
     this.hash = new Crypto().hash();
     this.salt = new Crypto().hash();

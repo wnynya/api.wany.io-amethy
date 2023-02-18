@@ -38,16 +38,13 @@ router.all('/nodes/:nid*', (req, res, next) => {
   AmethyTerminalNode.of(nid)
     .then((node) => {
       // 노드 키 인증
-      node
-        .verify(key)
-        .then(() => {
-          req.p.node = node;
-          next();
-        })
-        .catch(() => {
-          res.error('auth401');
-          return;
-        });
+      if (node.verify(key)) {
+        req.p.node = node;
+        next();
+      } else {
+        res.error('auth401');
+        return;
+      }
     })
     .catch(res.error);
 });
