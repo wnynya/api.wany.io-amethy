@@ -5,6 +5,7 @@ const router = express.Router();
 
 import packages from '../modules/amethy/packages.mjs';
 const packageName = 'Amethy';
+const logprefix = '[Amethy]: [Packages]: ';
 
 router.get('/', (req, res) => {
   if (req.query.latest == '') {
@@ -54,7 +55,7 @@ router.post('/', (req, res) => {
     .post(req, res)
     .then((pkg) => {
       res.ok();
-      console.log(logprefixp + 'New package uploaded (' + pkg.version + ')');
+      console.log(logprefix + 'New package uploaded (' + pkg.version + ')');
     })
     .catch(res.error);
 });
