@@ -41,6 +41,9 @@ router.all('/nodes/:nid*', (req, res, next) => {
       if (node.verify(key)) {
         req.p.node = node;
         next();
+      } else if (req.hasPermission(`amethy.terminal.nodes.${nid}`)) {
+        req.p.node = node;
+        next();
       } else {
         res.error('auth401');
         return;
@@ -51,6 +54,18 @@ router.all('/nodes/:nid*', (req, res, next) => {
 
 router.get('/nodes/:nid/check', (req, res) => {
   res.ok();
+});
+
+router.get('/nodes/:nid/systeminfo', (req, res) => {
+  res.data(req.p.node.systeminfo);
+});
+
+router.get('/nodes/:nid/systemstatus', (req, res) => {
+  res.data(req.p.node.systemstatus);
+});
+
+router.get('/nodes/:nid/logs', (req, res) => {
+  res.data(req.p.node.logs);
 });
 
 export default router;

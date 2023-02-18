@@ -47,15 +47,24 @@ const TerminalNodeListener = new (class {
       connection.node.ip = connection.req.client.ip;
       connection.node.lastused = new Date();
       connection.node.update(['status', 'ip', 'lastused']);
+      connection.node.logsUpdateInterval = setInterval(() => {
+        if (connection.node.logsUpdated) {
+          connection.node.update(['logs']);
+        }
+      }, 1000 * 10);
     });
-    this.wss.on('json', (connection, event, data, message) => {});
+    this.wss.on('json', (connection, event, data, message) => {
+      this.handleEvent(connection, event, data, message);
+    });
     this.wss.on('close', (connection) => {
       console.log(
         logprefix,
         `Node connection closed ${connection.node.label} ${connection.node.uid}@${connection.req.client.ip}`
       );
       connection.node.status = 'offline';
-      connection.node.update(['status']);
+      connection.node.lastused = new Date();
+      connection.node.update(['status', 'lastused']);
+      clearInterval(connection.node.logsUpdateInterval);
     });
     this.wss.on('error', (error) => {
       console.error(error);
@@ -66,39 +75,33 @@ const TerminalNodeListener = new (class {
     this.wss.handleUpgrade(...args);
   }
 
-  eventHandler(connection, event, data, message) {
+  handleEvent(connection, event, data, message) {
     switch (event) {
-      case 'console/log': {
-        connection.node
-          .pushLog(data)
-          .then(() => {
-            connection.node.update.logs = true;
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-        break;
-      }
       case 'system/info': {
-        data.ip = connection.req.ip;
         connection.node.systeminfo = data;
-        connection.node
-          .push('systeminfo')
-          .then(() => {})
-          .catch((error) => {
-            console.error(error);
-          });
+        connection.node.update(['systeminfo']);
         break;
       }
       case 'system/status': {
-        connection.node
-          .pushSystemstatus(data)
-          .then(() => {
-            connection.node.update.systemstatus = true;
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        connection.node.systemstatus.push(data);
+        console.log(data);
+        console.log(connection.node.systemstatusLength);
+        while (
+          connection.node.systemstatus.length >
+          connection.node.systemstatusLength
+        ) {
+          connection.node.systemstatus.shift();
+        }
+        console.log(connection.node.systemstatus.length);
+        connection.node.update(['systemstatus']);
+        break;
+      }
+      case 'console/log': {
+        connection.node.logs.push(data);
+        while (connection.node.logs.length > connection.node.logsLength) {
+          connection.node.logs.shift();
+        }
+        connection.node.logsUpdated = true;
         break;
       }
       case 'players': {
@@ -110,15 +113,29 @@ const TerminalNodeListener = new (class {
     }
 
     if (data.client) {
-      oldTerminalClientListener.eventTo(data.client, event, data.data, message);
+      TerminalClientListener.eventTo(data.client, event, data.data, message);
     } else {
-      oldTerminalClientListener.eventBroadcast(
-        connection.node.id,
+      TerminalClientListener.eventBroadcast(
+        connection.node.uid,
         event,
         data,
         message
       );
     }
+  }
+
+  eventTo(nid, event, data, message) {
+    let target = null;
+    for (const connection of this.wss.connections) {
+      if (connection.node.uid == nid) {
+        target = connection;
+        break;
+      }
+    }
+    if (!target) {
+      return;
+    }
+    target.event(event, data, message);
   }
 })();
 
@@ -147,6 +164,28 @@ const TerminalClientListener = new (class {
 
   handleUpgrade(...args) {
     this.wss.handleUpgrade(...args);
+  }
+
+  eventTo(cid, event, data, message) {
+    let target = null;
+    for (const connection of this.wss.connections) {
+      if (connection.id == cid) {
+        target = connection;
+        break;
+      }
+    }
+    if (!target) {
+      return;
+    }
+    target.event(event, data, message);
+  }
+
+  eventBroadcast(nid, event, data, message) {
+    for (const connection of this.wss.connections) {
+      if (connection.node.uid == nid) {
+        connection.event(event, data, message);
+      }
+    }
   }
 })();
 
