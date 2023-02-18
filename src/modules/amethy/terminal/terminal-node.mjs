@@ -19,8 +19,8 @@ export default class AmethyTerminalNode extends MySQLClass {
     this.owner = null;
     this.status = 'offline';
     this.ip = '';
-    this.serverinfo = {};
-    this.serverstatus = {};
+    this.systeminfo = {};
+    this.systemstatus = {};
     this.logs = [];
     this.consolehistory = [];
     this.meta = {};
@@ -44,8 +44,8 @@ export default class AmethyTerminalNode extends MySQLClass {
       ],
       status: 'string',
       ip: 'string',
-      serverinfo: 'object',
-      serverstatus: 'object',
+      systeminfo: 'object',
+      systemstatus: 'object',
       logs: 'array',
       consolehistory: 'array',
       meta: 'object',
@@ -53,7 +53,7 @@ export default class AmethyTerminalNode extends MySQLClass {
     this.filter = { uid: this.uid };
 
     this.logsLength = 2000;
-    this.serverstatusLength = 61;
+    this.systemstatusLength = 61;
     this.consolehistoryLength = 100;
   }
 

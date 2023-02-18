@@ -9,7 +9,7 @@ import auth from '@wnynya/auth';
 
 import AmethyTerminalNode from './terminal-node.mjs';
 
-const logprefix = '[Amethy] [Terminal]: ';
+const logprefix = '[Amethy] [Terminal]:';
 
 const TerminalNodeListener = new (class {
   constructor() {
@@ -19,23 +19,18 @@ const TerminalNodeListener = new (class {
 
     // Verify server
     this.wss.use((req, res, next, socket, head) => {
-      console.log(req.headers);
-
       const nid = req.headers['amethy-terminal-node-nid'];
       const key = req.headers['amethy-terminal-node-key'];
       // 노드가 존재하는지 확인
       AmethyTerminalNode.of(nid)
         .then((node) => {
           // 노드 키 인증
-          node
-            .verify(key)
-            .then(() => {
-              req.p.node = node;
-              next();
-            })
-            .catch(() => {
-              return;
-            });
+          if (node.verify(key)) {
+            req.p.node = node;
+            next();
+          } else {
+            return;
+          }
         })
         .catch(() => {
           return;
@@ -44,32 +39,23 @@ const TerminalNodeListener = new (class {
 
     this.wss.on('connection', (connection) => {
       connection.node = connection.req.p.node;
-
       console.log(
-        logprefixt +
-          'Node connection opened ' +
-          connection.node.uid +
-          '@' +
-          connection.req.client.ip +
-          ' {cid: ' +
-          connection.id +
-          '}'
+        logprefix,
+        `Node connection opened ${connection.node.label} ${connection.node.uid}@${connection.req.client.ip}`
       );
+      connection.node.status = 'online';
+      connection.node.ip = connection.req.client.ip;
+      connection.node.lastused = new Date();
+      connection.node.update(['status', 'ip', 'lastused']);
     });
-    this.wss.on('json', (connection, event, data, message) => {
-      console.log(event, data);
-    });
+    this.wss.on('json', (connection, event, data, message) => {});
     this.wss.on('close', (connection) => {
       console.log(
-        logprefixt +
-          'Node connection closed ' +
-          connection.node.uid +
-          '@' +
-          connection.req.client.ip +
-          ' {cid: ' +
-          connection.id +
-          '}'
+        logprefix,
+        `Node connection closed ${connection.node.label} ${connection.node.uid}@${connection.req.client.ip}`
       );
+      connection.node.status = 'offline';
+      connection.node.update(['status']);
     });
     this.wss.on('error', (error) => {
       console.error(error);
@@ -78,6 +64,61 @@ const TerminalNodeListener = new (class {
 
   handleUpgrade(...args) {
     this.wss.handleUpgrade(...args);
+  }
+
+  eventHandler(connection, event, data, message) {
+    switch (event) {
+      case 'console/log': {
+        connection.node
+          .pushLog(data)
+          .then(() => {
+            connection.node.update.logs = true;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+        break;
+      }
+      case 'system/info': {
+        data.ip = connection.req.ip;
+        connection.node.systeminfo = data;
+        connection.node
+          .push('systeminfo')
+          .then(() => {})
+          .catch((error) => {
+            console.error(error);
+          });
+        break;
+      }
+      case 'system/status': {
+        connection.node
+          .pushSystemstatus(data)
+          .then(() => {
+            connection.node.update.systemstatus = true;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+        break;
+      }
+      case 'players': {
+        break;
+      }
+      case 'worlds': {
+        break;
+      }
+    }
+
+    if (data.client) {
+      oldTerminalClientListener.eventTo(data.client, event, data.data, message);
+    } else {
+      oldTerminalClientListener.eventBroadcast(
+        connection.node.id,
+        event,
+        data,
+        message
+      );
+    }
   }
 })();
 
