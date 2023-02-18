@@ -4,46 +4,112 @@ import EventEmitter from 'events';
 import WebSocketServer from '@wnynya/websocket-server';
 import mysql from '@wnynya/mysql-client';
 
-import AmethyTerminalNode from './node.mjs';
-
-const wss = new WebSocketServer();
-
 import middlewares from '@wnynya/express-middlewares';
 import auth from '@wnynya/auth';
 
-wss.use(middlewares.cookies()); // Cookie parser
-wss.use(middlewares.client()); // Client infomations
-wss.use(auth.session(config.session)); // Auth session (req.session)
-wss.use(auth.account()); // Auth account (req.account)
+import AmethyTerminalNode from './terminal-node.mjs';
 
-// Check access permission
-wss.use((req, res, next, socket, head) => {
-  if (req.hasPermission('amethy.terminal.websocket.node')) {
-    next();
+const logprefix = '[Amethy] [Terminal]: ';
+
+const TerminalNodeListener = new (class {
+  constructor() {
+    this.wss = new WebSocketServer();
+
+    this.wss.use(middlewares.client()); // Client infomations
+
+    // Verify server
+    this.wss.use((req, res, next, socket, head) => {
+      const nid = req.headers['amethy-terminal-node-nid'];
+      const key = req.headers['amethy-terminal-node-key'];
+      // 노드가 존재하는지 확인
+      AmethyTerminalNode.of(nid)
+        .then((node) => {
+          // 노드 키 인증
+          node
+            .verify(key)
+            .then(() => {
+              req.p.node = node;
+              next();
+            })
+            .catch(() => {
+              return;
+            });
+        })
+        .catch(() => {
+          return;
+        });
+    });
+
+    this.wss.on('connection', (connection) => {
+      connection.node = connection.req.p.node;
+
+      console.log(
+        logprefixt +
+          'Node connection opened ' +
+          connection.node.uid +
+          '@' +
+          connection.req.client.ip +
+          ' {cid: ' +
+          connection.id +
+          '}'
+      );
+    });
+    this.wss.on('json', (connection, event, data, message) => {
+      console.log(event, data);
+    });
+    this.wss.on('close', (connection) => {
+      console.log(
+        logprefixt +
+          'Node connection closed ' +
+          connection.node.uid +
+          '@' +
+          connection.req.client.ip +
+          ' {cid: ' +
+          connection.id +
+          '}'
+      );
+    });
+    this.wss.on('error', (error) => {
+      console.error(error);
+    });
   }
-});
 
-// Verify server
-wss.use((req, res, next, socket, head) => {
-  const nid = req.headers['amethy-terminal-node-nid'];
-  const key = req.headers['amethy-terminal-node-key'];
-});
-
-wss.on('connection', (connection) => {});
-wss.on('json', (connection, event, data, message) => {
-  const resolve = tasks[data.req];
-  if (resolve) {
-    resolve(data.data || data.error);
+  handleUpgrade(...args) {
+    this.wss.handleUpgrade(...args);
   }
-  delete tasks[data.req];
-});
-wss.on('close', (connection) => {
-  console.log('Drop connection closed: ' + connection.uid);
-});
+})();
 
-const logprefixt = '[Amethy] [Terminal]: ';
+export { TerminalNodeListener };
 
-const TerminalNodeListener = new (class extends EventEmitter {
+const TerminalClientListener = new (class {
+  constructor() {
+    this.wss = new WebSocketServer();
+
+    this.wss.use(middlewares.cookies()); // Cookie parser
+    this.wss.use(middlewares.client()); // Client infomations
+    this.wss.use(auth.session(config.session)); // Auth session (req.session)
+    this.wss.use(auth.account()); // Auth account (req.account)
+
+    // Check access permission
+    this.wss.use((req, res, next, socket, head) => {
+      if (req.hasPermission('amethy.terminal.client.websocket')) {
+        next();
+      }
+    });
+
+    this.wss.on('error', (error) => {
+      console.error(error);
+    });
+  }
+
+  handleUpgrade(...args) {
+    this.wss.handleUpgrade(...args);
+  }
+})();
+
+export { TerminalClientListener };
+
+const oldTerminalNodeListener = new (class extends EventEmitter {
   constructor() {
     super();
 
@@ -102,7 +168,7 @@ const TerminalNodeListener = new (class extends EventEmitter {
             .catch(console.error);
         })
         .catch(console.error);
-      TerminalClientListener.eventBroadcast(
+      oldTerminalClientListener.eventBroadcast(
         connection.node.id,
         'status',
         connection.node.status
@@ -122,7 +188,7 @@ const TerminalNodeListener = new (class extends EventEmitter {
       );
       connection.node.status = 'offline';
       connection.node.push('status');
-      TerminalClientListener.eventBroadcast(
+      oldTerminalClientListener.eventBroadcast(
         connection.node.id,
         'status',
         connection.node.status
@@ -205,9 +271,9 @@ const TerminalNodeListener = new (class extends EventEmitter {
     }
 
     if (data.client) {
-      TerminalClientListener.eventTo(data.client, event, data.data, message);
+      oldTerminalClientListener.eventTo(data.client, event, data.data, message);
     } else {
-      TerminalClientListener.eventBroadcast(
+      oldTerminalClientListener.eventBroadcast(
         connection.node.id,
         event,
         data,
@@ -236,9 +302,7 @@ const TerminalNodeListener = new (class extends EventEmitter {
   }
 })();
 
-export { TerminalNodeListener };
-
-const TerminalClientListener = new (class extends EventEmitter {
+const oldTerminalClientListener = new (class extends EventEmitter {
   constructor() {
     super();
 
@@ -363,7 +427,7 @@ const TerminalClientListener = new (class extends EventEmitter {
         'say [' + connection.req.client.eid + '] $1'
       );
     }
-    TerminalNodeListener.eventTo(
+    oldTerminalNodeListener.eventTo(
       connection.node.id,
       event,
       {
@@ -396,8 +460,6 @@ const TerminalClientListener = new (class extends EventEmitter {
     }
   }
 })();
-
-export { TerminalClientListener };
 
 setTimeout(() => {
   mysql.query('UPDATE amethy_terminal_nodes SET status = ? ', ['offline']);

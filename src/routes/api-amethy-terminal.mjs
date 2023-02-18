@@ -3,7 +3,7 @@ import { console } from '@wnynya/logger';
 import express from 'express';
 const router = express.Router();
 
-import AmethyTerminalNode from '../modules/amethy/terminal/node.mjs';
+import AmethyTerminalNode from '../modules/amethy/terminal/terminal-node.mjs';
 
 import middlewares from '@wnynya/express-middlewares';
 const internal = middlewares.check.internal;

@@ -1,16 +1,5 @@
 import express from 'express';
 const router = express.Router();
-import { console } from '@wnynya/logger';
-
-import middlewares from '@wnynya/express-middlewares';
-const internal = middlewares.check.internal;
-const login = middlewares.check.login;
-const body = middlewares.check.body;
-const perm = middlewares.check.perm;
-
-const logprefix = '[Amethy]: ';
-const logprefixp = '[Amethy] [Packages]: ';
-const logprefixt = '[Amethy] [Terminal]: ';
 
 router.get('/', (req, res) => {
   res.ok('Wanyne API / Amethy');

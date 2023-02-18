@@ -13,13 +13,14 @@ function websocket(req, socket, head) {
 function use(path, server) {
   servers[path] = server;
 }
-/*
+
 import {
   TerminalNodeListener,
   TerminalClientListener,
-} from './modules/amethy/terminal/terminal.mjs';
+} from './modules/amethy/terminal/terminsl-listeners.mjs';
+
 use('/amethy/terminal/node', TerminalNodeListener);
 
-use('/amethy/terminal/client', TerminalClientListener);*/
+use('/amethy/terminal/client', TerminalClientListener);
 
 export default websocket;
