@@ -57,7 +57,7 @@ export default class AmethyTerminalNode extends MySQLClass {
     this.consolehistoryLength = 100;
   }
 
-  async insert(key = Crypto.uid()) {
+  async insert(key = Crypto.randomString(42)) {
     this.salt = this.crypt(this.salt);
     this.hash = this.crypt(key);
     await this.insertQuery();

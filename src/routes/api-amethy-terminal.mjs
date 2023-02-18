@@ -16,7 +16,7 @@ router.post('/nodes', (req, res) => {
   node
     .insert()
     .then((key) => {
-      console.log('new node ' + node.uid);
+      console.log('new node ' + node.uid, key);
       res.data({
         uid: node.uid,
         key: key,
