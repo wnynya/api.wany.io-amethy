@@ -39,7 +39,7 @@ export default class AmethyTerminalNode extends MySQLClass {
           return new AuthAccount(new AuthElement(uid));
         },
         (acn) => {
-          return acn.element.uid;
+          return acn ? acn.element.uid : '';
         },
       ],
       status: 'string',
@@ -57,8 +57,7 @@ export default class AmethyTerminalNode extends MySQLClass {
     this.consolehistoryLength = 100;
   }
 
-  async insert(owner, key = Crypto.uid()) {
-    this.owner = owner;
+  async insert(key = Crypto.uid()) {
     this.salt = this.crypt(this.salt);
     this.hash = this.crypt(key);
     await this.insertQuery();
