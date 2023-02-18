@@ -25,8 +25,8 @@ router.post('/nodes', (req, res) => {
     .catch(res.error);
 });
 
-/* 키 정보 필요 (req.p.node) */
-router.all('/nodes/:nid', (req, res, next) => {
+/* 노드 정보 필요 (req.p.node) */
+router.all('/nodes/:nid*', (req, res, next) => {
   // Preflight 요청 처리
   if (req.method == 'OPTIONS') {
     next();

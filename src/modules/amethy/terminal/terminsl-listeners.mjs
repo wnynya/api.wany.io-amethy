@@ -19,6 +19,8 @@ const TerminalNodeListener = new (class {
 
     // Verify server
     this.wss.use((req, res, next, socket, head) => {
+      console.log(req.headers);
+
       const nid = req.headers['amethy-terminal-node-nid'];
       const key = req.headers['amethy-terminal-node-key'];
       // 노드가 존재하는지 확인
