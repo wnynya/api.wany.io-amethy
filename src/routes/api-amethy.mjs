@@ -20,118 +20,13 @@ router.get('/ping', (req, res) => {
   res.message('pong200');
 });
 
-import packages from '../modules/amethy/packages.mjs';
-const packageName = 'Amethy';
+import packagesRouter from './api-amethy-packages.mjs';
+router.use('/packages', packagesRouter);
 
-router.get('/packages', (req, res) => {
-  if (req.query.latest == '') {
-    packages
-      .get(packageName, 'latest', req.query.apiVersion, req.query.channel)
-      .then((pkg) => {
-        res.data([pkg.toJSON()]);
-      })
-      .catch(res.error);
-  } else {
-    let where = false;
-    let size = -1;
-    let page = 1;
-    let and = false;
-    let count = false;
+import terminalRouter from './api-amethy-terminal.mjs';
+router.use('/terminal', terminalRouter);
 
-    if (req.query.count == '') {
-      count = true;
-    }
-    if (req.query.and == '') {
-      and = true;
-    }
-    if (req.query.channel) {
-      if (!where) {
-        where = new Object();
-      }
-      where.channel = req.query.channel;
-    }
-    if (req.query.api || req.query.apiVersion) {
-      if (!where) {
-        where = new Object();
-      }
-      where.apiVersion = req.query.api || req.query.apiVersion;
-    }
-
-    packages
-      .index(packageName, size, page, where, and, count)
-      .then((pkgs) => {
-        res.data(pkgs);
-      })
-      .catch(res.error);
-  }
-});
-
-router.post('/packages', (req, res) => {
-  packages
-    .post(req, res)
-    .then((pkg) => {
-      res.ok();
-      console.log(logprefixp + 'New package uploaded (' + pkg.version + ')');
-    })
-    .catch(res.error);
-});
-
-router.get('/packages/:version', (req, res) => {
-  packages
-    .get(
-      packageName,
-      req.params.version,
-      req.query.apiVersion,
-      req.query.channel
-    )
-    .then((pkg) => {
-      res.data(pkg.toJSON());
-    })
-    .catch(res.error);
-});
-
-router.get('/packages/:version/download', (req, res) => {
-  packages
-    .file(
-      packageName,
-      req.params.version,
-      req.query.apiVersion,
-      req.query.channel
-    )
-    .then((pkg) => {
-      res.setHeader(
-        'Content-disposition',
-        'attachment; filename=' + pkg.filename
-      );
-      res.setHeader('content-type', 'application/java-archive');
-      pkg.stream.pipe(res);
-    })
-    .catch(res.error);
-});
-
-import playersync from '../modules/amethy/playersync.mjs';
-
-router.get('/playersync/:channel/:id', (req, res) => {
-  let channel = req.params.channel;
-  channel = channel.replace(/[^a-z0-9_-]g/, '');
-  let id = req.params.id;
-  id = id.replace(/[^a-z0-9_-]g/, '');
-  playersync
-    .get(channel + '.' + id)
-    .then(res.data)
-    .catch(res.error);
-});
-router.post('/playersync/:channel/:id', (req, res) => {
-  let channel = req.params.channel;
-  channel = channel.replace(/[^a-z0-9_-]g/, '');
-  let id = req.params.id;
-  id = id.replace(/[^a-z0-9_-]g/, '');
-  console.log(channel + '.' + id);
-  playersync
-    .set(channel + '.' + id, req.body.data)
-    .then(res.ok)
-    .catch(res.error);
-});
+/*
 
 import { TerminalNodeListener } from '../modules/amethy/terminal/terminal.mjs';
 import {
@@ -156,7 +51,7 @@ router.all('/terminal/client/nodes/:id*', (req, res, next) => {
       .then((uid) => {
         /*req.p.id = uid;
         next();
-        return;*/
+        return;*
         getNodes(req.client.id)
           .then((nodes) => {
             if (Permissions.has(req, 'amethy.master')) {
@@ -276,7 +171,7 @@ router.put('/terminal/client/nodes/:id/coown', (req, res) => {
       /*if (uid == req.client.id) {
         res.message('400 why');
         return;
-      }*/
+      }*
       const account = new Account(uid);
       account
         .pull('meta')
@@ -488,7 +383,7 @@ router.delete('/terminal/files/:id', (req, res) => {
         next();
       });
   }
-});*/
+});*
 
 router.get('/terminal/nodes/:id', (req, res) => {
   const nid = req.p.id;
@@ -508,5 +403,7 @@ router.post('/cucumbery/songs/play', (req, res) => {
 
   songs.play(song).then(res.data).catch(res.error);
 });
+
+*/
 
 export default router;

@@ -1,11 +1,45 @@
+import config from '../../../config.mjs';
+
 import EventEmitter from 'events';
 import WebSocketServer from '@wnynya/websocket-server';
-import database from '@wnynya/mysql-client';
-import Crypto from '@wnynya/crypto';
-import Date from 'datwo';
-import { Accounts, Account } from '@wnynya/accounts';
+import mysql from '@wnynya/mysql-client';
 
-import { AmethyTerminalNode, getUID as getNodeUID, getNodes } from './node.mjs';
+import AmethyTerminalNode from './node.mjs';
+
+const wss = new WebSocketServer();
+
+import middlewares from '@wnynya/express-middlewares';
+import auth from '@wnynya/auth';
+
+wss.use(middlewares.cookies()); // Cookie parser
+wss.use(middlewares.client()); // Client infomations
+wss.use(auth.session(config.session)); // Auth session (req.session)
+wss.use(auth.account()); // Auth account (req.account)
+
+// Check access permission
+wss.use((req, res, next, socket, head) => {
+  if (req.hasPermission('amethy.terminal.websocket.node')) {
+    next();
+  }
+});
+
+// Verify server
+wss.use((req, res, next, socket, head) => {
+  const nid = req.headers['amethy-terminal-node-nid'];
+  const key = req.headers['amethy-terminal-node-key'];
+});
+
+wss.on('connection', (connection) => {});
+wss.on('json', (connection, event, data, message) => {
+  const resolve = tasks[data.req];
+  if (resolve) {
+    resolve(data.data || data.error);
+  }
+  delete tasks[data.req];
+});
+wss.on('close', (connection) => {
+  console.log('Drop connection closed: ' + connection.uid);
+});
 
 const logprefixt = '[Amethy] [Terminal]: ';
 
@@ -366,7 +400,7 @@ const TerminalClientListener = new (class extends EventEmitter {
 export { TerminalClientListener };
 
 setTimeout(() => {
-  database.query('UPDATE amethy_terminal_nodes SET status = ? ', ['offline']);
+  mysql.query('UPDATE amethy_terminal_nodes SET status = ? ', ['offline']);
   /*database.query('UPDATE amethy_terminal_nodes SET meta = ? ', [
     JSON.stringify({
       logsLength: 2000,
