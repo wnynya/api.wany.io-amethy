@@ -84,15 +84,12 @@ const TerminalNodeListener = new (class {
       }
       case 'system/status': {
         connection.node.systemstatus.push(data);
-        console.log(data);
-        console.log(connection.node.systemstatusLength);
         while (
           connection.node.systemstatus.length >
           connection.node.systemstatusLength
         ) {
           connection.node.systemstatus.shift();
         }
-        console.log(connection.node.systemstatus.length);
         connection.node.update(['systemstatus']);
         break;
       }

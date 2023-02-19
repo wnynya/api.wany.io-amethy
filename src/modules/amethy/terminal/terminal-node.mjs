@@ -22,6 +22,8 @@ export default class AmethyTerminalNode extends MySQLClass {
     this.systeminfo = {};
     this.systemstatus = [];
     this.logs = [];
+    this.players = [];
+    this.worlds = [];
     this.consolehistory = [];
     this.meta = {};
 
@@ -47,6 +49,8 @@ export default class AmethyTerminalNode extends MySQLClass {
       systeminfo: 'object',
       systemstatus: 'object',
       logs: 'array',
+      players: 'array',
+      worlds: 'array',
       consolehistory: 'array',
       meta: 'object',
     };

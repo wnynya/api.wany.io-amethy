@@ -15,6 +15,8 @@ CREATE TABLE `amethy_terminal_nodes` (
   `systeminfo` longtext COLLATE utf8mb4_unicode_ci DEFAULT '{}',
   `systemstatus` longtext COLLATE utf8mb4_unicode_ci DEFAULT '[]',
   `logs` longtext COLLATE utf8mb4_unicode_ci DEFAULT '[]',
+  `players` longtext COLLATE utf8mb4_unicode_ci DEFAULT '[]',
+  `worlds` longtext COLLATE utf8mb4_unicode_ci DEFAULT '[]',
   `consolehistory` longtext COLLATE utf8mb4_unicode_ci DEFAULT '[]',
   `meta` longtext COLLATE utf8mb4_unicode_ci DEFAULT '{}',
   PRIMARY KEY (`uid`)
