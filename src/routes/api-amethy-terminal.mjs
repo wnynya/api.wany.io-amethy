@@ -11,6 +11,12 @@ const login = middlewares.check.login;
 const body = middlewares.check.body;
 const perm = middlewares.check.perm;
 
+router.get('/nodes', login(), (req, res) => {
+  AmethyTerminalNode.index(10000, 1, false, true)
+    .then(res.data)
+    .catch(res.error);
+});
+
 router.post('/nodes', (req, res) => {
   const node = new AmethyTerminalNode();
   node
@@ -54,6 +60,25 @@ router.all('/nodes/:nid*', (req, res, next) => {
 
 router.get('/nodes/:nid', (req, res) => {
   res.data(req.p.node.toJSON());
+});
+
+router.patch('/nodes/:nid/label', body(), (req, res) => {
+  let label = req.body.label;
+  label = label.replace(/^\s+|\s+$/g, '');
+  label = label.replace(/\s+/g, ' ');
+  if (!label) {
+    label = 'Server';
+  }
+  label = label.replace(/</g, '&lt;');
+  label = label.replace(/>/g, '&gt;');
+  console.log(label);
+  req.p.node.label = label;
+  req.p.node
+    .update(['label'])
+    .then(() => {
+      res.ok();
+    })
+    .catch(res.error);
 });
 
 router.get('/nodes/:nid/check', (req, res) => {

@@ -112,4 +112,41 @@ export default class AmethyTerminalNode extends MySQLClass {
 
     return node;
   }
+
+  static async index(size = 20, page = 1, count = false, toJSON = false) {
+    const res = await mysql.query({
+      statement: 'SELECT',
+      table: table,
+      imports: {
+        uid: 'string',
+      },
+      filter: {},
+      join: 'OR',
+      like: true,
+      size: size,
+      page: page,
+      count: count,
+    });
+
+    let nodes = [];
+    const tasks = [];
+
+    for (const data of res) {
+      const node = new AmethyTerminalNode(data.uid);
+      nodes.push(node);
+      tasks.push(node.select());
+    }
+
+    await Promise.all(tasks);
+
+    if (toJSON) {
+      const nodesJSON = [];
+      for (const node of nodes) {
+        nodesJSON.push(node.toJSON());
+      }
+      nodes = nodesJSON;
+    }
+
+    return nodes;
+  }
 }
