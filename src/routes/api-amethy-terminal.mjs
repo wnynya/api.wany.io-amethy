@@ -52,6 +52,10 @@ router.all('/nodes/:nid*', (req, res, next) => {
     .catch(res.error);
 });
 
+router.get('/nodes/:nid', (req, res) => {
+  res.data(req.p.node.toJSON());
+});
+
 router.get('/nodes/:nid/check', (req, res) => {
   res.ok();
 });
@@ -66,6 +70,14 @@ router.get('/nodes/:nid/systemstatus', (req, res) => {
 
 router.get('/nodes/:nid/logs', (req, res) => {
   res.data(req.p.node.logs);
+});
+
+router.get('/nodes/:nid/players', (req, res) => {
+  res.data(req.p.node.players);
+});
+
+router.get('/nodes/:nid/worlds', (req, res) => {
+  res.data(req.p.node.worlds);
 });
 
 export default router;

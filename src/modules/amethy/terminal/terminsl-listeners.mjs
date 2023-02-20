@@ -52,6 +52,11 @@ const TerminalNodeListener = new (class {
           connection.node.update(['logs']);
         }
       }, 1000 * 10);
+      TerminalClientListener.eventBroadcast(
+        connection.node.uid,
+        'status',
+        'online'
+      );
     });
     this.wss.on('json', (connection, event, data, message) => {
       this.handleEvent(connection, event, data, message);
@@ -65,6 +70,11 @@ const TerminalNodeListener = new (class {
       connection.node.lastused = new Date();
       connection.node.update(['status', 'lastused']);
       clearInterval(connection.node.logsUpdateInterval);
+      TerminalClientListener.eventBroadcast(
+        connection.node.uid,
+        'status',
+        'offline'
+      );
     });
     this.wss.on('error', (error) => {
       console.error(error);
@@ -102,9 +112,13 @@ const TerminalNodeListener = new (class {
         break;
       }
       case 'players': {
+        connection.node.players = data;
+        connection.node.update(['players']);
         break;
       }
       case 'worlds': {
+        connection.node.worlds = data;
+        connection.node.update(['worlds']);
         break;
       }
     }
@@ -149,11 +163,39 @@ const TerminalClientListener = new (class {
 
     // Check access permission
     this.wss.use((req, res, next, socket, head) => {
-      if (req.hasPermission('amethy.terminal.client.websocket')) {
-        next();
+      if (!req.hasPermission('amethy.terminal.client.websocket')) {
+        return;
       }
+      const nid = req.query.nid;
+      if (!req.hasPermission(`amethy.terminal.nodes.${nid}`)) {
+        return;
+      }
+      AmethyTerminalNode.of(nid)
+        .then((node) => {
+          req.p.node = node;
+          next();
+        })
+        .catch(() => {
+          return;
+        });
     });
 
+    this.wss.on('connection', (connection) => {
+      connection.node = connection.req.p.node;
+      console.log(
+        logprefix,
+        `Client connection opened ${connection.req.account.eid}@${connection.req.client.ip} => ${connection.node.label}`
+      );
+    });
+    this.wss.on('json', (connection, event, data, message) => {
+      this.handleEvent(connection, event, data, message);
+    });
+    this.wss.on('close', (connection) => {
+      console.log(
+        logprefix,
+        `Client connection closed ${connection.req.account.eid}@${connection.req.client.ip} => ${connection.node.label}`
+      );
+    });
     this.wss.on('error', (error) => {
       console.error(error);
     });
@@ -161,6 +203,57 @@ const TerminalClientListener = new (class {
 
   handleUpgrade(...args) {
     this.wss.handleUpgrade(...args);
+  }
+
+  handleEvent(connection, event, data, message) {
+    if (
+      ![
+        'console/command',
+        'fs/dir/info',
+        'fs/file/upload',
+        'fs/file/download',
+        'fs/file/delete',
+        'players/target',
+        'console/tabcompleter',
+      ].includes(event)
+    ) {
+      return;
+    }
+    if ([''].includes(connection.node.id)) {
+    } else {
+      if (
+        ['fs-dir-info', 'fs-file-download', 'fs-file-delete'].includes(event)
+      ) {
+        if (!data.startsWith(connection.node.systeminfo.server.dir)) {
+          connection.event('fs-error', '접근할 수 없는 디렉터리입니다');
+          return;
+        }
+      }
+      if (['fs-file-upload'].includes(event)) {
+        if (!data.path.startsWith(connection.node.systeminfo.server.dir)) {
+          connection.event('fs-error', '접근할 수 없는 디렉터리입니다');
+          return;
+        }
+      }
+    }
+    if (['console/command'].includes(event)) {
+      // ㄴ 을 say 로
+      data = data.replace(/^ㄴ(.*)/, 'say $1');
+      // say 시 계졍 아이디 출력
+      data = data.replace(
+        /^say (.*)/,
+        'say [' + connection.req.account.eid + '] $1'
+      );
+    }
+    TerminalNodeListener.eventTo(
+      connection.node.uid,
+      event,
+      {
+        client: connection.id,
+        data: data,
+      },
+      message
+    );
   }
 
   eventTo(cid, event, data, message) {

@@ -83,10 +83,17 @@ export default class AmethyTerminalNode extends MySQLClass {
 
   toJSON() {
     return {
-      uid: this.element.uid,
-      label: this.element.label,
-      creation: this.element.creation.getTime(),
-      lastused: this.element.lastused.getTime(),
+      uid: this.uid,
+      label: this.label,
+      type: this.type,
+      creation: this.creation.getTime(),
+      lastused: this.lastused.getTime(),
+      owner: this.owner,
+      status: this.status,
+      ip: this.ip,
+      systeminfo: this.systeminfo,
+      players: this.players.length,
+      worlds: this.worlds.length,
     };
   }
 
