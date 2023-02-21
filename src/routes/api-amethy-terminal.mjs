@@ -62,6 +62,10 @@ router.get('/nodes/:nid', (req, res) => {
   res.data(req.p.node.toJSON());
 });
 
+router.delete('/nodes/:nid', (req, res) => {
+  req.p.node.delete().then(res.ok).catch(res.error);
+});
+
 router.patch('/nodes/:nid/label', body(), (req, res) => {
   let label = req.body.label;
   label = label.replace(/^\s+|\s+$/g, '');

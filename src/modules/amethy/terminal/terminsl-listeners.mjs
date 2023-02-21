@@ -632,13 +632,3 @@ const oldTerminalClientListener = new (class extends EventEmitter {
     }
   }
 })();
-
-setTimeout(() => {
-  mysql.query('UPDATE amethy_terminal_nodes SET status = ? ', ['offline']);
-  /*database.query('UPDATE amethy_terminal_nodes SET meta = ? ', [
-    JSON.stringify({
-      logsLength: 2000,
-      systemstatusLength: 61,
-    }),
-  ]);*/
-}, 200);
