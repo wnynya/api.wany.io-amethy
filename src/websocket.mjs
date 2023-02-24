@@ -17,7 +17,7 @@ function use(path, server) {
 import {
   TerminalNodeListener,
   TerminalClientListener,
-} from './modules/amethy/terminal/terminsl-listeners.mjs';
+} from './modules/amethy/terminal/terminal-listeners.mjs';
 
 use('/amethy/terminal/node', TerminalNodeListener);
 
