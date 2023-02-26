@@ -4,6 +4,7 @@ import express from 'express';
 const router = express.Router();
 
 import AmethyTerminalNode from '../modules/amethy/terminal/terminal-node.mjs';
+import { TerminalNodeListener } from '../modules/amethy/terminal/terminal-listeners.mjs';
 
 import middlewares from '@wnynya/express-middlewares';
 const internal = middlewares.check.internal;
@@ -75,7 +76,6 @@ router.patch('/nodes/:nid/label', body(), (req, res) => {
   }
   label = label.replace(/</g, '&lt;');
   label = label.replace(/>/g, '&gt;');
-  console.log(label);
   req.p.node.label = label;
   req.p.node
     .update(['label'])
@@ -98,7 +98,13 @@ router.get('/nodes/:nid/systemstatus', (req, res) => {
 });
 
 router.get('/nodes/:nid/logs', (req, res) => {
-  res.data(req.p.node.logs);
+  let connection = TerminalNodeListener.of(req.p.node.uid);
+
+  if (!connection) {
+    res.data(req.p.node.logs);
+  } else {
+    res.data(connection.node.logs);
+  }
 });
 
 router.get('/nodes/:nid/players', (req, res) => {
@@ -107,6 +113,20 @@ router.get('/nodes/:nid/players', (req, res) => {
 
 router.get('/nodes/:nid/worlds', (req, res) => {
   res.data(req.p.node.worlds);
+});
+
+router.post('/nodes/:nid/command', body(), (req, res) => {
+  let command = req.body.command;
+
+  let connection = TerminalNodeListener.of(req.p.node.uid);
+
+  if (!connection) {
+    return;
+  }
+
+  connection.event('console/command', { data: command });
+
+  res.ok();
 });
 
 export default router;

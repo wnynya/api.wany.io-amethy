@@ -136,17 +136,20 @@ const TerminalNodeListener = new (class {
   }
 
   eventTo(nid, event, data, message) {
-    let target = null;
-    for (const connection of this.wss.connections) {
-      if (connection.node.uid == nid) {
-        target = connection;
-        break;
-      }
-    }
+    let target = this.of(nid);
     if (!target) {
       return;
     }
     target.event(event, data, message);
+  }
+
+  of(nid) {
+    for (const connection of this.wss.connections) {
+      if (connection.node.uid == nid) {
+        return connection;
+      }
+    }
+    return null;
   }
 })();
 
