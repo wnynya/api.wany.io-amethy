@@ -24,8 +24,8 @@ router.use((req, res, next) => {
 
   req.p.permissions = [];
 
-  if (key && config.keys.hasOwnProperty(key)) {
-    req.p.permissions = config.keys[key].permissions;
+  if (key && packagesConfig.keys.hasOwnProperty(key)) {
+    req.p.permissions = packagesConfig.keys[key].permissions;
   }
 
   req.p.hasPermission = (node) => {
