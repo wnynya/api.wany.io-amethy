@@ -20,7 +20,7 @@ async function index(pid, channel) {
 }
 
 async function get(pid, channel, version) {
-  const dataDir = path.resolve(dataRoot, +pid);
+  const dataDir = path.resolve(dataRoot, pid);
   if (!fs.existsSync(dataDir)) throw 'default404';
   const dataFile = path.resolve(dataDir, './' + channel + '.json');
   if (!fs.existsSync(dataFile)) throw 'default404';
