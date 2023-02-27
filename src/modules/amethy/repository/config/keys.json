@@ -1,5 +1,8 @@
 {
-  "examplekey1234567890": {
-    "permissions": ["packages.example.*"]
+  "33917ef1eefb70b67aa938a851ef1c2f": {
+    "permissions": ["packages.Amethy.*"]
+  },
+  "854cd71b923a80ce891b5f7168fddd02": {
+    "permissions": ["packages.Amethy-Terminal.*"]
   }
 }
