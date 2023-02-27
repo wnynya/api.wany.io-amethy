@@ -132,10 +132,7 @@ async function savePackage(req, res) {
 async function file(pid, channel, version) {
   const pkg = await get(pid, channel, version);
 
-  const dataDir = path.resolve(
-    __dirname,
-    '../data/' + pid + '/packages/' + channel
-  );
+  const dataDir = path.resolve(dataRoot, pid + '/packages/' + channel);
   if (!fs.existsSync(dataDir)) throw 'default404';
   const dataFile = path.resolve(dataDir, './' + pkg.uid);
   if (!fs.existsSync(dataFile)) throw 'default404';
