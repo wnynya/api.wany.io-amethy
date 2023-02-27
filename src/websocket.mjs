@@ -21,6 +21,8 @@ import {
 
 use('/amethy/terminal/node', TerminalNodeListener);
 
+use('/amethy/terminal/nodes', TerminalNodeListener);
+
 use('/amethy/terminal/client', TerminalClientListener);
 
 export default websocket;

@@ -87,12 +87,12 @@ const TerminalNodeListener = new (class {
 
   handleEvent(connection, event, data, message) {
     switch (event) {
-      case 'system/info': {
+      case 'dashboard/systeminfo': {
         connection.node.systeminfo = data;
         connection.node.update(['systeminfo']);
         break;
       }
-      case 'system/status': {
+      case 'dashboard/systemstatus': {
         connection.node.systemstatus.push(data);
         while (
           connection.node.systemstatus.length >
@@ -212,6 +212,7 @@ const TerminalClientListener = new (class {
     if (
       ![
         'console/command',
+        'fs/dir/open',
         'fs/dir/info',
         'fs/file/upload',
         'fs/file/download',
@@ -240,13 +241,18 @@ const TerminalClientListener = new (class {
       }
     }
     if (['console/command'].includes(event)) {
+      if (!data?.command) {
+        return;
+      }
+      let command = data?.command;
       // ㄴ 을 say 로
-      data = data.replace(/^ㄴ(.*)/, 'say $1');
+      command = command.replace(/^ㄴ(.*)/, 'say $1');
       // say 시 계졍 아이디 출력
-      data = data.replace(
+      command = command.replace(
         /^say (.*)/,
         'say [' + connection.req.account.eid + '] $1'
       );
+      data.command = command;
     }
     TerminalNodeListener.eventTo(
       connection.node.uid,

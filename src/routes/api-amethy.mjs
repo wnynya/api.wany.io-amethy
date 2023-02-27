@@ -9,11 +9,14 @@ router.get('/ping', (req, res) => {
   res.message('pong200');
 });
 
-import packagesRouter from './api-amethy-packages.mjs';
-router.use('/packages', packagesRouter);
+import repositoryRouter from './api-amethy-repository.mjs';
+router.use('/repository', repositoryRouter);
 
 import terminalRouter from './api-amethy-terminal.mjs';
 router.use('/terminal', terminalRouter);
+
+import packagesRouter from './api-amethy-packages.mjs';
+router.use('/packages', packagesRouter);
 
 /*
 

@@ -1,0 +1,24 @@
+{
+  "Amethy": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "io.wany.amethy",
+      "artifactId": "Amethy"
+    }
+  },
+  "Amethy-Terminal": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "io.wany.amethy.terminal",
+      "artifactId": "Amethy-Terminal"
+    }
+  }
+}

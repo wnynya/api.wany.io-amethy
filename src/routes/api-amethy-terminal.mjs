@@ -12,6 +12,8 @@ const login = middlewares.check.login;
 const body = middlewares.check.body;
 const perm = middlewares.check.perm;
 
+const logprefix = '[Amethy] [Terminal]:';
+
 router.get('/nodes', login(), (req, res) => {
   AmethyTerminalNode.index(10000, 1, false, true)
     .then(res.data)
@@ -23,13 +25,17 @@ router.post('/nodes', (req, res) => {
   node
     .insert()
     .then((key) => {
-      console.log('new node ' + node.uid, key);
+      console.log(logprefix, 'New node issued: ' + node.uid);
       res.data({
         uid: node.uid,
         key: key,
       });
     })
     .catch(res.error);
+});
+
+router.get('/nodes/ping', (req, res) => {
+  res.message('pong200');
 });
 
 /* 노드 정보 필요 (req.p.node) */
@@ -67,6 +73,10 @@ router.delete('/nodes/:nid', (req, res) => {
   req.p.node.delete().then(res.ok).catch(res.error);
 });
 
+router.get('/nodes/:nid/check', (req, res) => {
+  res.ok();
+});
+
 router.patch('/nodes/:nid/label', body(), (req, res) => {
   let label = req.body.label;
   label = label.replace(/^\s+|\s+$/g, '');
@@ -83,10 +93,6 @@ router.patch('/nodes/:nid/label', body(), (req, res) => {
       res.ok();
     })
     .catch(res.error);
-});
-
-router.get('/nodes/:nid/check', (req, res) => {
-  res.ok();
 });
 
 router.get('/nodes/:nid/systeminfo', (req, res) => {
