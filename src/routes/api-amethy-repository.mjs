@@ -10,6 +10,7 @@ const body = middlewares.check.body;
 const perm = middlewares.check.perm;
 
 import packages from '../modules/amethy/repository/packages.mjs';
+import packagesConfig from '../modules/amethy/repository/packages-config.mjs';
 
 router.get('/', (req, res) => {
   res.data('AmeRepo Server');
@@ -57,12 +58,12 @@ router.get('/maven/*', (req, res) => {
   const version = match[3];
   const filename = match[4];
 
-  if (!config.packages.hasOwnProperty(pid)) {
+  if (!packagesConfig.packages.hasOwnProperty(pid)) {
     res.error('default404');
     return;
   }
 
-  const pkg = config.packages[pid];
+  const pkg = packagesConfig.packages[pid];
 
   if (
     pkg.maven.groupId.toLowerCase() != group.toLowerCase() ||
@@ -110,8 +111,8 @@ router.get('/maven/*', (req, res) => {
 });
 
 router.all('/:pid*', (req, res, next) => {
-  if (config.packages.hasOwnProperty(req.params.pid)) {
-    req.package = config.packages[req.params.pid];
+  if (packagesConfig.packages.hasOwnProperty(req.params.pid)) {
+    req.package = packagesConfig.packages[req.params.pid];
     req.package.id = req.params.pid;
     req.p.pid = req.params.pid;
 
