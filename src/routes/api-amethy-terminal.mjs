@@ -25,7 +25,7 @@ router.post('/nodes', (req, res) => {
   node
     .insert()
     .then((key) => {
-      console.log(logprefix, 'New node issued: ' + node.uid);
+      console.log(logprefix, `New node issued: ${node.uid}@${req.client.ip}`);
       res.data({
         uid: node.uid,
         key: key,
