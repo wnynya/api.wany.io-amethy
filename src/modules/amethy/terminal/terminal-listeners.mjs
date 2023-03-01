@@ -88,12 +88,12 @@ const TerminalNodeListener = new (class {
   handleEvent(connection, event, data, message) {
     switch (event) {
       case 'dashboard/systeminfo': {
-        connection.node.systeminfo = data;
+        connection.node.systeminfo = data.data;
         connection.node.update(['systeminfo']);
         break;
       }
       case 'dashboard/systemstatus': {
-        connection.node.systemstatus.push(data);
+        connection.node.systemstatus.push(data.data);
         while (
           connection.node.systemstatus.length >
           connection.node.systemstatusLength
@@ -104,7 +104,7 @@ const TerminalNodeListener = new (class {
         break;
       }
       case 'console/log': {
-        connection.node.logs.push(data);
+        connection.node.logs.push(data.data);
         while (connection.node.logs.length > connection.node.logsLength) {
           connection.node.logs.shift();
         }
@@ -112,24 +112,24 @@ const TerminalNodeListener = new (class {
         break;
       }
       case 'players': {
-        connection.node.players = data;
+        connection.node.players = data.data;
         connection.node.update(['players']);
         break;
       }
       case 'worlds': {
-        connection.node.worlds = data;
+        connection.node.worlds = data.data;
         connection.node.update(['worlds']);
         break;
       }
     }
 
-    if (data.client) {
+    if (data.client.uid) {
       TerminalClientListener.eventTo(data.client, event, data.data, message);
     } else {
       TerminalClientListener.eventBroadcast(
         connection.node.uid,
         event,
-        data,
+        data.data,
         message
       );
     }
@@ -212,11 +212,15 @@ const TerminalClientListener = new (class {
     if (
       ![
         'console/command',
-        'fs/dir/open',
-        'fs/dir/info',
-        'fs/file/upload',
-        'fs/file/download',
-        'fs/file/delete',
+        'filesystem/dir-read',
+        'filesystem/dir-create',
+        'filesystem/dir-delete',
+        'filesystem/file-read',
+        'filesystem/file-create',
+        'filesystem/file-write-open',
+        'filesystem/file-write-chunk',
+        'filesystem/file-write-close',
+        'filesystem/file-delete',
         'players/target',
         'console/tabcompleter',
       ].includes(event)
@@ -225,17 +229,14 @@ const TerminalClientListener = new (class {
     }
     if ([''].includes(connection.node.id)) {
     } else {
-      if (
-        ['fs/dir/info', 'fs/file/download', 'fs/file/delete'].includes(event)
-      ) {
-        if (!data.startsWith(connection.node.systeminfo.server.dir)) {
-          connection.event('fs/error', '접근할 수 없는 디렉터리입니다.');
-          return;
-        }
-      }
-      if (['fs/file/upload'].includes(event)) {
-        if (!data.path.startsWith(connection.node.systeminfo.server.dir)) {
-          connection.event('fs/error', '접근할 수 없는 디렉터리입니다.');
+      if (event.startsWith('filesystem')) {
+        if (
+          data.path &&
+          !data.path.startsWith(connection.node.systeminfo.server.dir)
+        ) {
+          connection.event('filesystem/error', {
+            message: '접근할 수 없는 디렉터리입니다.',
+          });
           return;
         }
       }
@@ -258,17 +259,19 @@ const TerminalClientListener = new (class {
       connection.node.uid,
       event,
       {
-        client: connection.id,
+        client: {
+          uid: connection.uid,
+        },
         data: data,
       },
       message
     );
   }
 
-  eventTo(cid, event, data, message) {
+  eventTo(client, event, data, message) {
     let target = null;
     for (const connection of this.wss.connections) {
-      if (connection.id == cid) {
+      if (connection.uid == client.uid) {
         target = connection;
         break;
       }

@@ -12,6 +12,8 @@ const perm = middlewares.check.perm;
 import packages from '../modules/amethy/repository/packages.mjs';
 import packagesConfig from '../modules/amethy/repository/packages-config.mjs';
 
+import maven from '../modules/amethy/repository/maven/maven.mjs';
+
 router.use((req, res, next) => {
   const key =
     req?.headers?.authorization ||
@@ -88,30 +90,11 @@ router.get('/', (req, res) => {
 });
 
 router.get('/maven', (req, res) => {
-  let host = req.hostname;
-  let protocol = req.headers['x-forwarded-proto'] || req.protocol;
-
-  const text =
-    `AmeRepo Maven Repository
-
-[Repository in pom.xml]
-
-<repository>
-  <id>` +
-    host +
-    `</id>
-  <name>AmeRepo ` +
-    host +
-    `</name>
-  <url>` +
-    protocol +
-    `://` +
-    host +
-    req.originalUrl +
-    `</url>
-</repository>
-
-  `;
+  const text = maven.getRep({
+    protocol: req.headers['x-forwarded-proto'] || req.protocol,
+    host: req.headers['x-forwarded-host'] || req.hostname,
+    path: req.originalUrl,
+  });
   res.set('Content-Type', 'text/text');
   res.send(text);
 });

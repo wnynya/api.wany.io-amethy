@@ -1,0 +1,74 @@
+#..|....|....|....|....|....|....|....|....|....|....|....|....|....|..#
+
+
+
+
+
+
+https://api.wany.io/amethy/repository/maven
+
+Wanyne API                                                          Wany
+Amethy / Amerep Repository                                   27 Feb 2023
+
+
+                           Amerep Repository
+
+Description
+
+   Documentation for how to use Amerep Repository
+
+Table of Contents
+
+   1. About Amerep Repository . . . . . . . . . . . . . . . . . . . .  2
+   2. Using Amerep Repository . . . . . . . . . . . . . . . . . . . .  2
+   3. HTTP-REST Documentation . . . . . . . . . . . . . . . . . . . .  2
+     3.1. Basic Endpoints . . . . . . . . . . . . . . . . . . . . . .  2
+     3.2. Amerep Bot  . . . . . . . . . . . . . . . . . . . . . . . .  2
+       3.2.1. Bukkit Plugin . . . . . . . . . . . . . . . . . . . . .  2
+       3.2.1. BungeeCord Plugin . . . . . . . . . . . . . . . . . . .  2
+     3.3. Bukkit Plugin Updater . . . . . . . . . . . . . . . . . . .  2
+     3.4. BungeeCord Plugin Updater . . . . . . . . . . . . . . . . .  2
+   4. Using in Maven Repository . . . . . . . . . . . . . . . . . . .  2
+
+2. Add repository tag in pom.xml
+
+   Add this repository tag in the correct positon of pom.xml file. You
+   must add this tag to using dependency in this Amerep repository. The
+   position can be described using query selector.
+
+   Position:
+      project > repositories
+
+   Content:
+      <repository>
+        <id>amerep</id>
+        <name>Amerep</name>
+        <url>https://api.wany.io/amethy/repository/maven</url>
+      </repository>
+
+3. Add dependency tag in pom.xml
+
+   If you want to use specific package to dependency of your package, Add 
+   that packages dependency tag in the correct positon of pom.xml file. 
+   The position can be described using query selector.
+
+   Position:
+      project > dependencies
+
+   Content (Example):
+      <dependency>
+        <groupId>com.example.group.id</groupId>
+        <artifactId>artifact-id</artifactId>
+        <version>1.0.0</version>
+      </repository>
+
+
+
+
+
+
+#..|....|....|....|....|....|....|....|....|....|....|....|....|....|..#
+
+Wany                   Amethy / Amerep Repository               [Page 1]
+
+                           Amerep Repository                 27 Feb 2023
