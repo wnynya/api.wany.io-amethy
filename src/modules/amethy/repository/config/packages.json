@@ -20,5 +20,27 @@
       "groupId": "io.wany.amethy.terminal",
       "artifactId": "Amethy-Terminal"
     }
+  },
+  "Amethy-Terminal-Bukkit": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "io.wany.amethy.terminal.bukkit",
+      "artifactId": "Amethy-Terminal"
+    }
+  },
+  "Amethy-Terminal-Bungeecord": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "io.wany.amethy.terminal.bungeecord",
+      "artifactId": "Amethy-Terminal"
+    }
   }
 }
