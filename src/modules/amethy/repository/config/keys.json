@@ -1,14 +1,14 @@
 {
-  "33917ef1eefb70b67aa938a851ef1c2f": {
+  "7l2lu7ttl8117myddf0aguuxuesclxtgj1jh6ozena": {
     "permissions": ["packages.Amethy.*"]
-  },
-  "854cd71b923a80ce891b5f7168fddd02": {
-    "permissions": ["packages.Amethy-Terminal.*"]
   },
   "ctxyim5r25wpgg1rwtju16ae5qsxnun8u6wlouwl4i": {
     "permissions": ["packages.Amethy-Terminal-Bukkit.*"]
   },
   "av4zqq8rtad1kt2nebuk0r7j9gre1yiofuwakz6xey": {
     "permissions": ["packages.Amethy-Terminal-Bungeecord.*"]
+  },
+  "854cd71b923a80ce891b5f7168fddd02": {
+    "permissions": ["packages.Amethy-Terminal.*"]
   }
 }
