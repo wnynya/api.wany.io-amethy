@@ -20,10 +20,14 @@ router.get('/nodes', login(), (req, res) => {
     .catch(res.error);
 });
 
-router.post('/nodes', (req, res) => {
+router.post('/nodes', body(), (req, res) => {
+  if (!req.body.type || !['bukkit', 'bungeecord'].includes(req.body.type)) {
+    res.error('default400');
+    return;
+  }
   const node = new AmethyTerminalNode();
   node
-    .insert()
+    .insert(req.body.type)
     .then((key) => {
       console.log(logprefix, `New node issued: ${node.uid}@${req.client.ip}`);
       res.data({

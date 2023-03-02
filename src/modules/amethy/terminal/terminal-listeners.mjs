@@ -46,10 +46,10 @@ const TerminalNodeListener = new (class {
       connection.node.status = 'online';
       connection.node.ip = connection.req.client.ip;
       connection.node.lastused = new Date();
-      connection.node.update(['status', 'ip', 'lastused']);
+      connection.node.update(['status', 'ip', 'lastused']).catch(console.error);
       connection.node.logsUpdateInterval = setInterval(() => {
         if (connection.node.logsUpdated) {
-          connection.node.update(['logs']);
+          connection.node.update(['logs']).catch(console.error);
         }
       }, 1000 * 10);
       TerminalClientListener.eventBroadcast(
@@ -68,7 +68,7 @@ const TerminalNodeListener = new (class {
       );
       connection.node.status = 'offline';
       connection.node.lastused = new Date();
-      connection.node.update(['status', 'lastused']);
+      connection.node.update(['status', 'lastused']).catch(console.error);
       clearInterval(connection.node.logsUpdateInterval);
       TerminalClientListener.eventBroadcast(
         connection.node.uid,
@@ -89,7 +89,7 @@ const TerminalNodeListener = new (class {
     switch (event) {
       case 'dashboard/systeminfo': {
         connection.node.systeminfo = data.data;
-        connection.node.update(['systeminfo']);
+        connection.node.update(['systeminfo']).catch(console.error);
         break;
       }
       case 'dashboard/systemstatus': {
@@ -100,7 +100,7 @@ const TerminalNodeListener = new (class {
         ) {
           connection.node.systemstatus.shift();
         }
-        connection.node.update(['systemstatus']);
+        connection.node.update(['systemstatus']).catch(console.error);
         break;
       }
       case 'console/log': {
@@ -113,12 +113,12 @@ const TerminalNodeListener = new (class {
       }
       case 'players': {
         connection.node.players = data.data;
-        connection.node.update(['players']);
+        connection.node.update(['players']).catch(console.error);
         break;
       }
       case 'worlds': {
         connection.node.worlds = data.data;
-        connection.node.update(['worlds']);
+        connection.node.update(['worlds']).catch(console.error);
         break;
       }
     }

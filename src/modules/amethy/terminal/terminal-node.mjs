@@ -62,7 +62,8 @@ export default class AmethyTerminalNode extends MySQLClass {
     this.consolehistoryLength = 100;
   }
 
-  async insert(key = Crypto.randomString(42)) {
+  async insert(type, key = Crypto.randomString(42)) {
+    this.type = type;
     this.salt = this.crypt(this.salt);
     this.hash = this.crypt(key);
     await this.insertQuery();
@@ -142,6 +143,14 @@ export default class AmethyTerminalNode extends MySQLClass {
     if (toJSON) {
       const nodesJSON = [];
       for (const node of nodes) {
+        let json = node.toJSON();
+        delete json.systeminfo?.system;
+        delete json.systeminfo?.user;
+        delete json.systeminfo?.os;
+        delete json.systeminfo?.java;
+        delete json.systeminfo?.network;
+        delete json.systeminfo?.commands;
+        delete json.worlds;
         nodesJSON.push(node.toJSON());
       }
       nodes = nodesJSON;
