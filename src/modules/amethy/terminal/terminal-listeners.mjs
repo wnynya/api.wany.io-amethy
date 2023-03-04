@@ -111,13 +111,13 @@ const TerminalNodeListener = new (class {
         connection.node.logsUpdated = true;
         break;
       }
-      case 'players': {
-        connection.node.players = data.data;
+      case 'players/players': {
+        connection.node.players = data.data.players;
         connection.node.update(['players']).catch(console.error);
         break;
       }
-      case 'worlds': {
-        connection.node.worlds = data.data;
+      case 'worlds/worlds': {
+        connection.node.worlds = data.data.worlds;
         connection.node.update(['worlds']).catch(console.error);
         break;
       }
