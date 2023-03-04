@@ -212,6 +212,7 @@ const TerminalClientListener = new (class {
     if (
       ![
         'console/command',
+        'console/tabcompleter',
         'filesystem/dir-read',
         'filesystem/dir-create',
         'filesystem/dir-delete',
@@ -221,8 +222,9 @@ const TerminalClientListener = new (class {
         'filesystem/file-write-chunk',
         'filesystem/file-write-close',
         'filesystem/file-delete',
-        'players/target',
-        'console/tabcompleter',
+        'players/player',
+        'worlds/world',
+        'worlds/gamerule',
       ].includes(event)
     ) {
       return;
