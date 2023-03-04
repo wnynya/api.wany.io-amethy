@@ -139,4 +139,19 @@ router.post('/nodes/:nid/command', body(), (req, res) => {
   res.ok();
 });
 
+import mojang from '../modules/amethy/terminal/mojang-api.mjs';
+
+router.get('/mojang/players/:uuid/skin', (req, res) => {
+  const uuid = req.params.uuid;
+
+  mojang
+    .skin(uuid)
+    .then((data) => {
+      data.pipe(res);
+    })
+    .catch((error) => {
+      res.error(error.status);
+    });
+});
+
 export default router;
