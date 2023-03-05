@@ -74,7 +74,7 @@ router.all('/nodes/:nid*', (req, res, next) => {
         next();
       } else if (req.login) {
         if (
-          node.owner.uid == req.account.uid ||
+          node.owner.element.uid == req.account.uid ||
           req.hasPermission('amethy.terminal.master')
         ) {
           req.p.node = node;
