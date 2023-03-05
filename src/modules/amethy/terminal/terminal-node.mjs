@@ -107,12 +107,12 @@ export default class AmethyTerminalNode extends MySQLClass {
     if (!permissions.includes('dashboard.read')) {
       permissions.push('dashboard.read');
     }
-    this.members[account.uid] = permissions;
+    this.members[account.element.uid] = permissions;
     await this.update(['members']);
   }
 
   async deleteMember(account) {
-    delete this.members[account.uid];
+    delete this.members[account.element.uid];
     await this.update(['members']);
   }
 

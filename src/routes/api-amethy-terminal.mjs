@@ -80,11 +80,14 @@ router.all('/nodes/:nid*', (req, res, next) => {
           req.p.node = node;
           req.p.scope = 'owner';
           next();
-        } else if (node.members[req.account]) {
+        } else if (node.members[req.account.uid]) {
           req.p.node = node;
           req.p.scope = 'member';
-          res.p.mperms = node.members[req.account];
+          req.p.mperms = node.members[req.account.uid];
           next();
+        } else {
+          res.error('auth401');
+          return;
         }
       } else {
         res.error('auth401');

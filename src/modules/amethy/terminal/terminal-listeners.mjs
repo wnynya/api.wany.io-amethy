@@ -182,15 +182,18 @@ const TerminalClientListener = new (class {
           ) {
             req.p.scope = 'owner';
             next();
-          } else if (node.members[req.account]) {
+          } else if (node.members[req.account.uid]) {
             req.p.scope = 'member';
-            res.p.mperms = node.members[req.account];
+            req.p.mperms = node.members[req.account.uid];
             next();
           } else {
             req.destroy();
+            return;
           }
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log(error);
+          req.destroy();
           return;
         });
     });
