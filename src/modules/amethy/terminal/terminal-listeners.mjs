@@ -179,7 +179,7 @@ const TerminalClientListener = new (class {
         .then((node) => {
           req.p.node = node;
           if (
-            node.owner.uid == req.account.uid ||
+            node.owner.element.uid == req.account.uid ||
             req.hasPermission('amethy.terminal.master')
           ) {
             req.p.scope = 'owner';
