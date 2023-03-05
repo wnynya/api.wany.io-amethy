@@ -17,6 +17,7 @@ export default class AmethyTerminalNode extends MySQLClass {
     this.creation = new Date();
     this.lastused = this.creation;
     this.owner = null;
+    this.members = [];
     this.status = 'offline';
     this.ip = '';
     this.systeminfo = {};
@@ -44,6 +45,7 @@ export default class AmethyTerminalNode extends MySQLClass {
           return acn ? acn.element.uid : '';
         },
       ],
+      members: 'array',
       status: 'string',
       ip: 'string',
       systeminfo: 'object',
@@ -90,6 +92,7 @@ export default class AmethyTerminalNode extends MySQLClass {
       creation: this.creation.getTime(),
       lastused: this.lastused.getTime(),
       owner: this.owner,
+      members: this.members,
       status: this.status,
       ip: this.ip,
       systeminfo: this.systeminfo,

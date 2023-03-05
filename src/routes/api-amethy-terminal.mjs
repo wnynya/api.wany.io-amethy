@@ -5,6 +5,7 @@ const router = express.Router();
 
 import AmethyTerminalNode from '../modules/amethy/terminal/terminal-node.mjs';
 import { TerminalNodeListener } from '../modules/amethy/terminal/terminal-listeners.mjs';
+import { AuthAccount } from '@wnynya/auth';
 
 import middlewares from '@wnynya/express-middlewares';
 const internal = middlewares.check.internal;
@@ -79,6 +80,26 @@ router.delete('/nodes/:nid', (req, res) => {
 
 router.get('/nodes/:nid/check', (req, res) => {
   res.ok();
+});
+
+router.post('/nodes/:nid/grant', body(), (req, res) => {
+  let owner = req.body.owner;
+
+  AuthAccount.of(owner).then((account) => {
+    req.p.node.owner = account;
+    req.p.node
+      .update(['owner'])
+      .then(() => {
+        res.data({
+          account: {
+            uid: account.uid,
+            eid: account.eid,
+            labal: account.element.labal,
+          },
+        });
+      })
+      .catch(res.error);
+  });
 });
 
 router.patch('/nodes/:nid/label', body(), (req, res) => {
