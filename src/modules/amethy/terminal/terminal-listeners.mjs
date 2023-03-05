@@ -365,28 +365,17 @@ const TerminalClientListener = new (class {
   }
 
   eventTo(client, event, data, message) {
-    let target = null;
-    for (const connection of this.wss.connections) {
-      if (connection.uid == client.uid) {
-        target = connection;
+    let connection = null;
+    for (const conn of this.wss.connections) {
+      if (conn.uid == client.uid) {
+        connection = conn;
         break;
       }
     }
-    if (!target) {
+    if (!connection) {
       return;
     }
 
-    // console.read
-    if (['console/log'].includes(event)) {
-      if (
-        !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('console.read')
-        )
-      ) {
-        return;
-      }
-    }
     // filesyste.read
     else if (
       [
@@ -460,12 +449,24 @@ const TerminalClientListener = new (class {
       }
     }
 
-    target.event(event, data, message);
+    connection.event(event, data, message);
   }
 
   eventBroadcast(nid, event, data, message) {
     for (const connection of this.wss.connections) {
       if (connection.node.uid == nid) {
+        // console.read
+        if (['console/log'].includes(event)) {
+          if (
+            !(
+              connection.node.req.p.scope == 'owner' ||
+              connection.node.req.p.mperms.includes('console.read')
+            )
+          ) {
+            return;
+          }
+        }
+
         connection.event(event, data, message);
       }
     }
