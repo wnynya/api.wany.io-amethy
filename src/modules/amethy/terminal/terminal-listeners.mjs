@@ -377,7 +377,7 @@ const TerminalClientListener = new (class {
     }
 
     // filesyste.read
-    else if (
+    if (
       [
         'filesystem/dir-read',
         'filesystem/file-read-open',
