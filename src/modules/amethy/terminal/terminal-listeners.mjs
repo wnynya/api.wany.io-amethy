@@ -151,7 +151,9 @@ const TerminalNodeListener = new (class {
   }
 
   kill(nid) {
+    console.log('kill', nid);
     const target = this.of(nid);
+    console.log(target);
     if (!target) {
       return;
     }
