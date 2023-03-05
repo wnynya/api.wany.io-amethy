@@ -27,10 +27,12 @@ const TerminalNodeListener = new (class {
             req.p.node = node;
             next();
           } else {
+            socket.destroy();
             return;
           }
         })
         .catch(() => {
+          socket.destroy();
           return;
         });
     });
@@ -155,7 +157,7 @@ const TerminalNodeListener = new (class {
     if (!target) {
       return;
     }
-    target.destroy();
+    target.terminate();
   }
 })();
 
@@ -187,13 +189,12 @@ const TerminalClientListener = new (class {
             req.p.mperms = node.members[req.account.uid];
             next();
           } else {
-            req.destroy();
+            socket.destroy();
             return;
           }
         })
         .catch((error) => {
-          console.log(error);
-          req.destroy();
+          socket.destroy();
           return;
         });
     });
