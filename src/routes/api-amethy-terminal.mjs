@@ -164,6 +164,32 @@ router.patch('/nodes/:nid/label', body(), (req, res) => {
 /**
  * @scope owner
  */
+router.get('/nodes/:nid/members', (req, res) => {
+  if (!['owner'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  const tasks = [];
+
+  for (const mem in req.p.node.members) {
+    tasks.push(AuthAccount.of(mem));
+  }
+
+  Promise.all(tasks)
+    .then((data) => {
+      for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].toJSON(true);
+        data[i].mperms = req.p.node.members[data[i].uid];
+      }
+      res.data(data);
+    })
+    .catch(res.error);
+});
+
+/**
+ * @scope owner
+ */
 router.post('/nodes/:nid/members', body(), (req, res) => {
   if (!['owner'].includes(req.p.scope)) {
     res.error('auth401');
@@ -175,6 +201,10 @@ router.post('/nodes/:nid/members', body(), (req, res) => {
 
   AuthAccount.of(member)
     .then((account) => {
+      if (account.element.uid == req.p.node.owner.element.uid) {
+        res.error('서버 소유자는 멤버로 등록하실 수 없습니다.', 400);
+        return;
+      }
       req.p.node
         .setMember(account, perms)
         .then(() => {
@@ -182,7 +212,13 @@ router.post('/nodes/:nid/members', body(), (req, res) => {
         })
         .catch(res.error);
     })
-    .catch(res.error);
+    .catch((error) => {
+      if (error == 'default404') {
+        res.error('해당 와니네 계정을 찾을 수 없습니다.', 404);
+      } else {
+        res.error(error);
+      }
+    });
 });
 
 /**
