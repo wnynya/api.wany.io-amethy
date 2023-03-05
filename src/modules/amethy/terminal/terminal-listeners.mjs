@@ -158,6 +158,7 @@ const TerminalNodeListener = new (class {
       return;
     }
     target.terminate();
+    TerminalClientListener.eventBroadcast(nid, 'kill', {});
   }
 })();
 
