@@ -85,21 +85,23 @@ router.get('/nodes/:nid/check', (req, res) => {
 router.post('/nodes/:nid/grant', body(), (req, res) => {
   let owner = req.body.owner;
 
-  AuthAccount.of(owner).then((account) => {
-    req.p.node.owner = account;
-    req.p.node
-      .update(['owner'])
-      .then(() => {
-        res.data({
-          account: {
-            uid: account.uid,
-            eid: account.eid,
-            labal: account.element.labal,
-          },
-        });
-      })
-      .catch(res.error);
-  });
+  AuthAccount.of(owner)
+    .then((account) => {
+      req.p.node.owner = account;
+      req.p.node
+        .update(['owner'])
+        .then(() => {
+          res.data({
+            account: {
+              uid: account.uid,
+              eid: account.eid,
+              labal: account.element.labal,
+            },
+          });
+        })
+        .catch(res.error);
+    })
+    .catch(res.error);
 });
 
 router.patch('/nodes/:nid/label', body(), (req, res) => {
