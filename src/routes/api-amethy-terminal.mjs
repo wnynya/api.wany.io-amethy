@@ -15,7 +15,7 @@ const perm = middlewares.check.perm;
 
 const logprefix = '[Amethy] [Terminal]:';
 
-router.get('/nodes', login(), (req, res) => {
+router.get('/nodes', login(), perm('amethy.terminal.master'), (req, res) => {
   AmethyTerminalNode.index(10000, 1, false, true)
     .then(res.data)
     .catch(res.error);
@@ -39,6 +39,18 @@ router.post('/nodes', body(), (req, res) => {
     .catch(res.error);
 });
 
+router.get('/nodes/owns', login(), (req, res) => {
+  AmethyTerminalNode.ofOwner(req.account.uid, 10000, 1, false, true)
+    .then(res.data)
+    .catch(res.error);
+});
+
+router.get('/nodes/members', login(), (req, res) => {
+  AmethyTerminalNode.ofMember(req.account.uid, 10000, 1, false, true)
+    .then(res.data)
+    .catch(res.error);
+});
+
 router.get('/nodes/ping', (req, res) => {
   res.message('pong200');
 });
@@ -58,10 +70,22 @@ router.all('/nodes/:nid*', (req, res, next) => {
       // 노드 키 인증
       if (node.verify(key)) {
         req.p.node = node;
+        req.p.scope = 'plugin';
         next();
-      } else if (req.hasPermission(`amethy.terminal.nodes.${nid}`)) {
-        req.p.node = node;
-        next();
+      } else if (req.login) {
+        if (
+          node.owner.uid == req.account.uid ||
+          req.hasPermission('amethy.terminal.master')
+        ) {
+          req.p.node = node;
+          req.p.scope = 'owner';
+          next();
+        } else if (node.members[req.account]) {
+          req.p.node = node;
+          req.p.scope = 'member';
+          res.p.mperms = node.members[req.account];
+          next();
+        }
       } else {
         res.error('auth401');
         return;
@@ -70,41 +94,53 @@ router.all('/nodes/:nid*', (req, res, next) => {
     .catch(res.error);
 });
 
+/**
+ * @scope owner, member
+ * @mperm dashboard.read
+ */
 router.get('/nodes/:nid', (req, res) => {
+  if (!['owner', 'member'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  if (req.p.scope == 'member') {
+    if (!req.p.mperms.includes('dashboard.read')) {
+      res.error('auth401');
+      return;
+    }
+  }
+
   res.data(req.p.node.toJSON());
 });
 
+/**
+ * @scope owner
+ */
 router.delete('/nodes/:nid', (req, res) => {
-  req.p.node.delete().then(res.ok).catch(res.error);
-});
+  if (!['owner'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
 
-router.get('/nodes/:nid/check', (req, res) => {
-  res.ok();
-});
-
-router.post('/nodes/:nid/grant', body(), (req, res) => {
-  let owner = req.body.owner;
-
-  AuthAccount.of(owner)
-    .then((account) => {
-      req.p.node.owner = account;
-      req.p.node
-        .update(['owner'])
-        .then(() => {
-          res.data({
-            account: {
-              uid: account.uid,
-              eid: account.eid,
-              labal: account.element.labal,
-            },
-          });
-        })
-        .catch(res.error);
+  req.p.node
+    .delete()
+    .then(() => {
+      TerminalNodeListener.kill(req.p.node.uid);
+      res.ok();
     })
     .catch(res.error);
 });
 
+/**
+ * @scope owner
+ */
 router.patch('/nodes/:nid/label', body(), (req, res) => {
+  if (!['owner'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
   let label = req.body.label;
   label = label.replace(/^\s+|\s+$/g, '');
   label = label.replace(/\s+/g, ' ');
@@ -122,15 +158,110 @@ router.patch('/nodes/:nid/label', body(), (req, res) => {
     .catch(res.error);
 });
 
+/**
+ * @scope owner
+ */
+router.post('/nodes/:nid/members', body(), (req, res) => {
+  if (!['owner'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  let member = req.body.member;
+  let perms = req.body.permissions;
+
+  AuthAccount.of(member)
+    .then((account) => {
+      req.p.node
+        .setMember(account, perms)
+        .then(() => {
+          res.ok();
+        })
+        .catch(res.error);
+    })
+    .catch(res.error);
+});
+
+/**
+ * @scope owner
+ */
+router.delete('/nodes/:nid/members', body(), (req, res) => {
+  if (!['owner'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  let member = req.body.member;
+
+  AuthAccount.of(member)
+    .then((account) => {
+      req.p.node
+        .deleteMember(account)
+        .then(() => {
+          res.ok();
+        })
+        .catch(res.error);
+    })
+    .catch(res.error);
+});
+
+/**
+ * @scope owner, member
+ * @mperm dashboard.read
+ */
 router.get('/nodes/:nid/systeminfo', (req, res) => {
+  if (!['owner', 'member'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  if (req.p.scope == 'member') {
+    if (!req.p.mperms.includes('dashboard.read')) {
+      res.error('auth401');
+      return;
+    }
+  }
+
   res.data(req.p.node.systeminfo);
 });
 
+/**
+ * @scope owner, member
+ * @mperm dashboard.read
+ */
 router.get('/nodes/:nid/systemstatus', (req, res) => {
+  if (!['owner', 'member'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  if (req.p.scope == 'member') {
+    if (!req.p.mperms.includes('dashboard.read')) {
+      res.error('auth401');
+      return;
+    }
+  }
+
   res.data(req.p.node.systemstatus);
 });
 
+/**
+ * @scope owner, member
+ * @mperm console.read
+ */
 router.get('/nodes/:nid/logs', (req, res) => {
+  if (!['owner', 'member'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  if (req.p.scope == 'member') {
+    if (!req.p.mperms.includes('console.read')) {
+      res.error('auth401');
+      return;
+    }
+  }
+
   let connection = TerminalNodeListener.of(req.p.node.uid);
 
   if (!connection) {
@@ -140,15 +271,63 @@ router.get('/nodes/:nid/logs', (req, res) => {
   }
 });
 
+/**
+ * @scope owner, member
+ * @mperm players.read
+ */
 router.get('/nodes/:nid/players', (req, res) => {
+  if (!['owner', 'member'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  if (req.p.scope == 'member') {
+    if (!req.p.mperms.includes('players.read')) {
+      res.error('auth401');
+      return;
+    }
+  }
+
   res.data(req.p.node.players);
 });
 
+/**
+ * @scope owner, member
+ * @mperm worlds.read
+ */
 router.get('/nodes/:nid/worlds', (req, res) => {
+  if (!['owner', 'member'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  if (req.p.scope == 'member') {
+    if (!req.p.mperms.includes('worlds.read')) {
+      res.error('auth401');
+      return;
+    }
+  }
+
   res.data(req.p.node.worlds);
 });
 
+/**
+ * @scope owner, member
+ * @mperm console.write
+ */
 router.post('/nodes/:nid/command', body(), (req, res) => {
+  if (!['owner', 'member'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  if (req.p.scope == 'member') {
+    if (!req.p.mperms.includes('console.write')) {
+      res.error('auth401');
+      return;
+    }
+  }
+
   let command = req.body.command;
 
   let connection = TerminalNodeListener.of(req.p.node.uid);
@@ -160,6 +339,47 @@ router.post('/nodes/:nid/command', body(), (req, res) => {
   connection.event('console/command', { data: command });
 
   res.ok();
+});
+
+/**
+ * @scope plugin
+ */
+router.get('/nodes/:nid/check', (req, res) => {
+  if (!['plugin'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  res.ok();
+});
+
+/**
+ * @scope plugin
+ */
+router.post('/nodes/:nid/grant', body(), (req, res) => {
+  if (!['plugin'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  let owner = req.body.owner;
+
+  AuthAccount.of(owner)
+    .then((account) => {
+      req.p.node
+        .grant(account)
+        .then(() => {
+          res.data({
+            account: {
+              uid: account.uid,
+              eid: account.eid,
+              labal: account.element.labal,
+            },
+          });
+        })
+        .catch(res.error);
+    })
+    .catch(res.error);
 });
 
 import mojang from '../modules/amethy/terminal/mojang-api.mjs';

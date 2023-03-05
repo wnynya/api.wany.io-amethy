@@ -1,8 +1,6 @@
 import config from '../../../config.mjs';
 
-import EventEmitter from 'events';
 import WebSocketServer from '@wnynya/websocket-server';
-import mysql from '@wnynya/mysql-client';
 
 import middlewares from '@wnynya/express-middlewares';
 import auth from '@wnynya/auth';
@@ -151,6 +149,14 @@ const TerminalNodeListener = new (class {
     }
     return null;
   }
+
+  kill(nid) {
+    const target = this.of(nid);
+    if (!target) {
+      return;
+    }
+    target.destroy();
+  }
 })();
 
 export { TerminalNodeListener };
@@ -166,17 +172,23 @@ const TerminalClientListener = new (class {
 
     // Check access permission
     this.wss.use((req, res, next, socket, head) => {
-      if (!req.hasPermission('amethy.terminal.client.websocket')) {
-        return;
-      }
       const nid = req.query.nid;
-      if (!req.hasPermission(`amethy.terminal.nodes.${nid}`)) {
-        return;
-      }
       AmethyTerminalNode.of(nid)
         .then((node) => {
           req.p.node = node;
-          next();
+          if (
+            node.owner.uid == req.account.uid ||
+            req.hasPermission('amethy.terminal.master')
+          ) {
+            req.p.scope = 'owner';
+            next();
+          } else if (node.members[req.account]) {
+            req.p.scope = 'member';
+            res.p.mperms = node.members[req.account];
+            next();
+          } else {
+            req.destroy();
+          }
         })
         .catch(() => {
           return;
@@ -187,7 +199,7 @@ const TerminalClientListener = new (class {
       connection.node = connection.req.p.node;
       console.log(
         logprefix,
-        `Client connection opened ${connection.req.account.eid}@${connection.req.client.ip} => ${connection.node.label}`
+        `Client connection opened ${connection.req.account.eid}@${connection.req.client.ip} (${connection.req.p.scope}) => ${connection.node.label}`
       );
     });
     this.wss.on('json', (connection, event, data, message) => {
@@ -196,7 +208,7 @@ const TerminalClientListener = new (class {
     this.wss.on('close', (connection) => {
       console.log(
         logprefix,
-        `Client connection closed ${connection.req.account.eid}@${connection.req.client.ip} => ${connection.node.label}`
+        `Client connection closed ${connection.req.account.eid}@${connection.req.client.ip} (${connection.req.p.scope}) => ${connection.node.label}`
       );
     });
     this.wss.on('error', (error) => {
@@ -229,6 +241,85 @@ const TerminalClientListener = new (class {
     ) {
       return;
     }
+
+    // console.write
+    if (['console/command', 'console/tabcompleter'].includes(event)) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('console.write')
+        )
+      ) {
+        return;
+      }
+    }
+    // filesyste.read
+    else if (['filesystem/dir-read', 'filesystem/file-read'].includes(event)) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('filesystem.read')
+        )
+      ) {
+        return;
+      }
+    }
+    // filesyste.write
+    else if (
+      [
+        'filesystem/dir-create',
+        'filesystem/dir-delete',
+        'filesystem/file-create',
+        'filesystem/file-write-open',
+        'filesystem/file-write-chunk',
+        'filesystem/file-write-close',
+        'filesystem/file-delete',
+      ].includes(event)
+    ) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('filesystem.write')
+        )
+      ) {
+        return;
+      }
+    }
+    // players.read
+    else if (['players/player'].includes(event)) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('players.read')
+        )
+      ) {
+        return;
+      }
+    }
+    // worlds.read
+    else if (['worlds/world'].includes(event)) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('worlds.read')
+        )
+      ) {
+        return;
+      }
+    }
+    // worlds.write
+    else if (['worlds/gamerule'].includes(event)) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('worlds.write')
+        )
+      ) {
+        return;
+      }
+    }
+
+    // filesystem path verify
     if ([''].includes(connection.node.id)) {
     } else {
       if (event.startsWith('filesystem')) {
@@ -243,6 +334,8 @@ const TerminalClientListener = new (class {
         }
       }
     }
+
+    // console command say
     if (['console/command'].includes(event)) {
       if (!data?.command) {
         return;
@@ -257,6 +350,7 @@ const TerminalClientListener = new (class {
       );
       data.command = command;
     }
+
     TerminalNodeListener.eventTo(
       connection.node.uid,
       event,
@@ -281,6 +375,91 @@ const TerminalClientListener = new (class {
     if (!target) {
       return;
     }
+
+    // console.read
+    if (['console/log'].includes(event)) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('console.read')
+        )
+      ) {
+        return;
+      }
+    }
+    // filesyste.read
+    else if (
+      [
+        'filesystem/dir-read',
+        'filesystem/file-read-open',
+        'filesystem/file-read-chunk',
+        'filesystem/file-read-close',
+      ].includes(event)
+    ) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('filesystem.read')
+        )
+      ) {
+        return;
+      }
+    }
+    // filesyste.write
+    else if (
+      [
+        'filesystem/dir-create',
+        'filesystem/dir-delete',
+        'filesystem/file-create',
+        'filesystem/file-write-open',
+        'filesystem/file-write-chunk',
+        'filesystem/file-write-close',
+        'filesystem/file-delete',
+      ].includes(event)
+    ) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('filesystem.write')
+        )
+      ) {
+        return;
+      }
+    }
+    // players.read
+    else if (['players/player'].includes(event)) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('players.read')
+        )
+      ) {
+        return;
+      }
+    }
+    // worlds.read
+    else if (['worlds/world'].includes(event)) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('worlds.read')
+        )
+      ) {
+        return;
+      }
+    }
+    // worlds.write
+    else if (['worlds/gamerule'].includes(event)) {
+      if (
+        !(
+          connection.node.req.p.scope == 'owner' ||
+          connection.node.req.p.mperms.includes('worlds.write')
+        )
+      ) {
+        return;
+      }
+    }
+
     target.event(event, data, message);
   }
 

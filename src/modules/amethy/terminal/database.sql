@@ -10,7 +10,7 @@ CREATE TABLE `amethy_terminal_nodes` (
   `creation` datetime NOT NULL,
   `lastused` datetime NOT NULL,
   `owner` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `members` longtext COLLATE utf8mb4_unicode_ci DEFAULT '[]',
+  `members` longtext COLLATE utf8mb4_unicode_ci DEFAULT '{}',
   `status` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT 'offline',
   `ip` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT '',
   `systeminfo` longtext COLLATE utf8mb4_unicode_ci DEFAULT '{}',
@@ -26,3 +26,5 @@ CREATE TABLE `amethy_terminal_nodes` (
 DELETE FROM `amethy_terminal_nodes`;
 
 ALTER TABLE `amethy_terminal_nodes` ADD `members` longtext COLLATE utf8mb4_unicode_ci DEFAULT '[]' AFTER `owner`;
+
+ALTER TABLE `amethy_terminal_nodes` MODIFY `members` longtext COLLATE utf8mb4_unicode_ci DEFAULT '{}';
