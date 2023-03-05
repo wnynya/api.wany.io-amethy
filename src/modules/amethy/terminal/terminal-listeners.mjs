@@ -197,9 +197,13 @@ const TerminalClientListener = new (class {
 
     this.wss.on('connection', (connection) => {
       connection.node = connection.req.p.node;
+      connection.scope = connection.req.p.scope;
+      if (connection.req.p.mperms) {
+        connection.mperms = connection.req.p.mperms;
+      }
       console.log(
         logprefix,
-        `Client connection opened ${connection.req.account.eid}@${connection.req.client.ip} (${connection.req.p.scope}) => ${connection.node.label}`
+        `Client connection opened ${connection.req.account.eid}@${connection.req.client.ip} (${connection.scope}) => ${connection.node.label}`
       );
     });
     this.wss.on('json', (connection, event, data, message) => {
@@ -208,7 +212,7 @@ const TerminalClientListener = new (class {
     this.wss.on('close', (connection) => {
       console.log(
         logprefix,
-        `Client connection closed ${connection.req.account.eid}@${connection.req.client.ip} (${connection.req.p.scope}) => ${connection.node.label}`
+        `Client connection closed ${connection.req.account.eid}@${connection.req.client.ip} (${connection.scope}) => ${connection.node.label}`
       );
     });
     this.wss.on('error', (error) => {
@@ -246,8 +250,8 @@ const TerminalClientListener = new (class {
     if (['console/command', 'console/tabcompleter'].includes(event)) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('console.write')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('console.write')
         )
       ) {
         return;
@@ -257,8 +261,8 @@ const TerminalClientListener = new (class {
     else if (['filesystem/dir-read', 'filesystem/file-read'].includes(event)) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('filesystem.read')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('filesystem.read')
         )
       ) {
         return;
@@ -278,8 +282,8 @@ const TerminalClientListener = new (class {
     ) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('filesystem.write')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('filesystem.write')
         )
       ) {
         return;
@@ -289,8 +293,8 @@ const TerminalClientListener = new (class {
     else if (['players/player'].includes(event)) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('players.read')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('players.read')
         )
       ) {
         return;
@@ -300,8 +304,8 @@ const TerminalClientListener = new (class {
     else if (['worlds/world'].includes(event)) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('worlds.read')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('worlds.read')
         )
       ) {
         return;
@@ -311,8 +315,8 @@ const TerminalClientListener = new (class {
     else if (['worlds/gamerule'].includes(event)) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('worlds.write')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('worlds.write')
         )
       ) {
         return;
@@ -387,8 +391,8 @@ const TerminalClientListener = new (class {
     ) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('filesystem.read')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('filesystem.read')
         )
       ) {
         return;
@@ -408,8 +412,8 @@ const TerminalClientListener = new (class {
     ) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('filesystem.write')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('filesystem.write')
         )
       ) {
         return;
@@ -419,8 +423,8 @@ const TerminalClientListener = new (class {
     else if (['players/player'].includes(event)) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('players.read')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('players.read')
         )
       ) {
         return;
@@ -430,8 +434,8 @@ const TerminalClientListener = new (class {
     else if (['worlds/world'].includes(event)) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('worlds.read')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('worlds.read')
         )
       ) {
         return;
@@ -441,8 +445,8 @@ const TerminalClientListener = new (class {
     else if (['worlds/gamerule'].includes(event)) {
       if (
         !(
-          connection.node.req.p.scope == 'owner' ||
-          connection.node.req.p.mperms.includes('worlds.write')
+          connection.scope == 'owner' ||
+          connection.mperms.includes('worlds.write')
         )
       ) {
         return;
@@ -459,8 +463,8 @@ const TerminalClientListener = new (class {
         if (['console/log'].includes(event)) {
           if (
             !(
-              connection.node.req.p.scope == 'owner' ||
-              connection.node.req.p.mperms.includes('console.read')
+              connection.scope == 'owner' ||
+              connection.mperms.includes('console.read')
             )
           ) {
             return;
