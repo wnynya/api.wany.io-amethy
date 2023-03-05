@@ -4,7 +4,10 @@ import express from 'express';
 const router = express.Router();
 
 import AmethyTerminalNode from '../modules/amethy/terminal/terminal-node.mjs';
-import { TerminalNodeListener } from '../modules/amethy/terminal/terminal-listeners.mjs';
+import {
+  TerminalNodeListener,
+  TerminalClientListener,
+} from '../modules/amethy/terminal/terminal-listeners.mjs';
 import { AuthAccount } from '@wnynya/auth';
 
 import middlewares from '@wnynya/express-middlewares';
@@ -208,6 +211,12 @@ router.post('/nodes/:nid/members', body(), (req, res) => {
       req.p.node
         .setMember(account, perms)
         .then(() => {
+          TerminalClientListener.eventToAccount(
+            account.element.uid,
+            'reload',
+            {},
+            '터미널 권한이 변경되었습니다.'
+          );
           res.ok();
         })
         .catch(res.error);
@@ -237,6 +246,12 @@ router.delete('/nodes/:nid/members', body(), (req, res) => {
       req.p.node
         .deleteMember(account)
         .then(() => {
+          TerminalClientListener.eventToAccount(
+            account.element.uid,
+            'exit',
+            {},
+            '터미널 노드가 제거되었습니다.'
+          );
           res.ok();
         })
         .catch(res.error);

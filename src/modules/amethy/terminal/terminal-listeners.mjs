@@ -158,7 +158,12 @@ const TerminalNodeListener = new (class {
       return;
     }
     target.terminate();
-    TerminalClientListener.eventBroadcast(nid, 'kill', {});
+    TerminalClientListener.eventBroadcast(
+      nid,
+      'exit',
+      {},
+      '터미널 노드가 제거되었습니다.'
+    );
   }
 })();
 
@@ -459,6 +464,14 @@ const TerminalClientListener = new (class {
     }
 
     connection.event(event, data, message);
+  }
+
+  eventToAccount(account, event, data, message) {
+    for (const conn of this.wss.connections) {
+      if (conn.req.account.uid == account) {
+        conn.event(event, data, message);
+      }
+    }
   }
 
   eventBroadcast(nid, event, data, message) {
