@@ -401,6 +401,11 @@ router.post('/nodes/:nid/grant', body(), (req, res) => {
     return;
   }
 
+  if (req.p.node.owner.element.uid) {
+    res.error('default400');
+    return;
+  }
+
   let owner = req.body.owner;
 
   AuthAccount.of(owner)
