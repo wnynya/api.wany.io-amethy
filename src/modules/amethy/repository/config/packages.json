@@ -42,5 +42,27 @@
       "groupId": "io.wany.amethy.terminal.bungeecord",
       "artifactId": "Amethy-Terminal"
     }
+  },
+  "CBomb-Survival": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "net.cbomb.survival",
+      "artifactId": "CBomb-Survival"
+    }
+  },
+  "CBomb-Mining": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "net.cbomb.mining",
+      "artifactId": "CBomb-Survival"
+    }
   }
 }
