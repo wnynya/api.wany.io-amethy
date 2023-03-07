@@ -108,7 +108,7 @@ router.get('/maven/*', (req, res) => {
     return;
   }
   const group = match[1].replaceAll('/', '.');
-  const pid = match[2].toLowerCase();
+  const pid = match[2];
   const version = match[3];
   const filename = match[4];
 
@@ -119,11 +119,8 @@ router.get('/maven/*', (req, res) => {
 
   const pkg = packagesConfig.packages[pid];
 
-  if (
-    pkg.maven.groupId.toLowerCase() != group.toLowerCase() ||
-    pkg.maven.artifactId.toLowerCase() != pid
-  ) {
-    res.error('default404');
+  if (pkg.maven.groupId != group || pkg.maven.artifactId != pid) {
+    res.error('default401');
     return;
   }
 
