@@ -1,4 +1,15 @@
 {
+  "Amethyst": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "io.wany.amethyst",
+      "artifactId": "Amethyst"
+    }
+  },
   "Amethy": {
     "private": false,
     "channels": {
