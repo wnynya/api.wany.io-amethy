@@ -54,6 +54,17 @@
       "artifactId": "Amethy-Terminal"
     }
   },
+  "Cucumbery": {
+    "private": false,
+    "channels": {
+      "release": {},
+      "dev": { "primary": true }
+    },
+    "maven": {
+      "groupId": "me.jho5245",
+      "artifactId": "Cucumbery"
+    }
+  },
   "CBomb-Survival": {
     "private": false,
     "channels": {
@@ -65,15 +76,15 @@
       "artifactId": "CBomb-Survival"
     }
   },
-  "CBomb-Mining": {
+  "CBomb-Explore": {
     "private": false,
     "channels": {
       "release": { "primary": true },
       "dev": {}
     },
     "maven": {
-      "groupId": "net.cbomb.mining",
-      "artifactId": "CBomb-Survival"
+      "groupId": "net.cbomb.explore",
+      "artifactId": "CBomb-Explore"
     }
   }
 }
