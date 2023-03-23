@@ -390,7 +390,7 @@ router.post('/nodes/:nid/command', body(), (req, res) => {
     return;
   }
 
-  connection.event('console/command', { data: command });
+  connection.event('console/command', { data: { command: command } });
 
   res.ok();
 });
