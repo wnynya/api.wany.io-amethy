@@ -39,6 +39,12 @@ const TerminalNodeListener = new (class {
 
     this.wss.on('connection', (connection) => {
       connection.node = connection.req.p.node;
+
+      let prev = this.of(connection.node.uid);
+      if (prev) {
+        prev.terminate();
+      }
+
       console.log(
         logprefix,
         `Node connection opened ${connection.node.label} ${connection.node.uid}@${connection.req.client.ip}`
