@@ -61,7 +61,7 @@
       "dev": { "primary": true }
     },
     "maven": {
-      "groupId": "me.jho5245",
+      "groupId": "com.jho5245.cucumbery",
       "artifactId": "Cucumbery"
     }
   },
