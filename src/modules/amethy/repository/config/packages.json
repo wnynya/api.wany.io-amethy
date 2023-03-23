@@ -65,6 +65,17 @@
       "artifactId": "Cucumbery"
     }
   },
+  "CBomb": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "net.cbomb",
+      "artifactId": "CBomb"
+    }
+  },
   "CBomb-Survival": {
     "private": false,
     "channels": {

@@ -14,6 +14,9 @@
   "znxl9sh4z754p71ac0lnnl1v8h454vf4ujaqh9s16h": {
     "permissions": ["packages.Cucumbery.*"]
   },
+  "su6cyv3ypuyxd3a2f4c2y1dxupcenk2tzdgbphku87": {
+    "permissions": ["packages.CBomb.*"]
+  },
   "8awgjy78b9976lbav97d1ezfu7wybwjf90k7tb4qax": {
     "permissions": ["packages.CBomb-Survival.*"]
   },
