@@ -302,7 +302,7 @@ export default class AmethyTerminalNode extends MySQLClass {
 
   static async reset() {
     await mysql.query(
-      'UPDATE FROM amethy_terminal_nodes SET `status` = "offline", `players` = "[]"'
+      'UPDATE amethy_terminal_nodes SET `status` = "offline", `players` = "[]"'
     );
   }
 }
