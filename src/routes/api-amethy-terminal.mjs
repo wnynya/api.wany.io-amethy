@@ -328,7 +328,7 @@ router.get('/nodes/:nid/logs', (req, res) => {
 /**
  * @scope owner
  */
-router.get('/nodes/:nid/logs/clear', (req, res) => {
+router.post('/nodes/:nid/logs/clear', (req, res) => {
   if (!['owner'].includes(req.p.scope)) {
     res.error('auth401');
     return;
