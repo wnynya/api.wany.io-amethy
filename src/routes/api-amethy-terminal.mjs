@@ -326,6 +326,26 @@ router.get('/nodes/:nid/logs', (req, res) => {
 });
 
 /**
+ * @scope owner
+ */
+router.get('/nodes/:nid/logs/clear', (req, res) => {
+  if (!['owner'].includes(req.p.scope)) {
+    res.error('auth401');
+    return;
+  }
+
+  let connection = TerminalNodeListener.of(req.p.node.uid);
+
+  if (!connection) {
+    req.p.node.logs = [];
+    req.p.node.update('logs').then(res.ok).catch(res.error);
+  } else {
+    connection.node.logs = [];
+    connection.node.update('logs').then(res.ok).catch(res.error);
+  }
+});
+
+/**
  * @scope owner, member
  * @mperm players.read
  */
