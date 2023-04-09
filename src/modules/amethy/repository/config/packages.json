@@ -54,6 +54,17 @@
       "artifactId": "Amethy-Terminal"
     }
   },
+  "EmeraldProtection": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "io.wany.amethy.emeraldprotection",
+      "artifactId": "EmeraldProtection"
+    }
+  },
   "Cucumbery": {
     "private": false,
     "channels": {
