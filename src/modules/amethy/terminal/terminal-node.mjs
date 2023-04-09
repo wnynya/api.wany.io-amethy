@@ -308,5 +308,8 @@ export default class AmethyTerminalNode extends MySQLClass {
 }
 
 setTimeout(() => {
-  AmethyTerminalNode.reset();
+  const dev = process.argv.includes('-dev');
+  if (!dev) {
+    AmethyTerminalNode.reset();
+  }
 }, 100);
