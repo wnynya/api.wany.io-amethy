@@ -466,14 +466,18 @@ import mojang from '../modules/amethy/terminal/mojang-api.mjs';
 router.get('/mojang/players/:uuid/skin', (req, res) => {
   const uuid = req.params.uuid;
 
-  mojang
-    .skin(uuid)
-    .then((data) => {
-      data.pipe(res);
-    })
-    .catch((error) => {
-      res.error(error.status);
-    });
+  try {
+    mojang
+      .skin(uuid)
+      .then((data) => {
+        data.pipe(res);
+      })
+      .catch((error) => {
+        res.error(error.status);
+      });
+  } catch (e) {
+    res.error(e);
+  }
 });
 
 export default router;
