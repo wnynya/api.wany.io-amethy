@@ -40,7 +40,9 @@ async function getUUID(eid = '') {
 async function getPlayerSkin(uuid) {
   const res1 = await JSONGetRequest(
     'https://sessionserver.mojang.com/session/minecraft/profile/' + uuid
-  );
+  ).catch((error) => {
+    throw error;
+  });
   const skinstr = Buffer.from(res1.body.properties[0].value, 'base64').toString(
     'utf8'
   );
