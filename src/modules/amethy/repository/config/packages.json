@@ -108,5 +108,16 @@
       "groupId": "net.cbomb.explore",
       "artifactId": "CBomb-Explore"
     }
+  },
+  "Wagusen": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "com.wagusen",
+      "artifactId": "Wagusen"
+    }
   }
 }

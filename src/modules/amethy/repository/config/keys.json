@@ -28,5 +28,8 @@
   },
   "854cd71b923a80ce891b5f7168fddd02": {
     "permissions": ["packages.Amethy-Terminal.*"]
+  },
+  "2lxu7sedoc98o60b54gmq6yklxzgn7uy51ze3epasw": {
+    "permissions": ["packages.Wagusen.*"]
   }
 }
