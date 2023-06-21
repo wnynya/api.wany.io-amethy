@@ -31,5 +31,8 @@
   },
   "2lxu7sedoc98o60b54gmq6yklxzgn7uy51ze3epasw": {
     "permissions": ["packages.Wagusen.*"]
+  },
+  "oklqbqeczzq1i8bnsq70mtpliw1xzkfwq49y622jdp": {
+    "permissions": ["packages.BlueBamboo.*"]
   }
 }

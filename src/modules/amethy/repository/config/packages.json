@@ -119,5 +119,16 @@
       "groupId": "com.wagusen",
       "artifactId": "Wagusen"
     }
+  },
+  "BlueBamboo": {
+    "private": false,
+    "channels": {
+      "release": { "primary": true },
+      "dev": {}
+    },
+    "maven": {
+      "groupId": "net.bbforest",
+      "artifactId": "BlueBamboo"
+    }
   }
 }
