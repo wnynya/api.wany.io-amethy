@@ -128,7 +128,10 @@ export default class AmethyTerminalNode extends MySQLClass {
       status: this.status,
       ip: this.ip,
       systeminfo: this.systeminfo,
-      players: this.systemstatus[this.systemstatus.length - 1]['players-count'],
+      players: () => {
+        const status = this.systemstatus[this.systemstatus.length - 1];
+        return status ? status['players-count'] : 0;
+      },
       worlds: this.worlds.length,
     };
   }
