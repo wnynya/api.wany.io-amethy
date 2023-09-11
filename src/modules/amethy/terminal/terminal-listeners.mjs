@@ -33,6 +33,7 @@ const TerminalNodeListener = new (class {
         })
         .catch(() => {
           socket.destroy();
+
           return;
         });
     });
