@@ -10,7 +10,7 @@
   "dependencies": {
     "@wnynya/auth": "^1.0.20",
     "@wnynya/crypto": "^0.1.2",
-    "@wnynya/express-middlewares": "^1.2.14",
+    "@wnynya/express-middlewares": "^1.2.15",
     "@wnynya/logger": "^0.1.1",
     "@wnynya/request": "^0.9.0",
     "@wnynya/websocket-server": "^1.0.10",
