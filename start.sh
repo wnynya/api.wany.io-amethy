@@ -1,4 +1,4 @@
-session=github-actions-wanyne-api-amethy
+session=ga-apiwanyio-amethy
 tmux has-session -t $session || tmux new-session -d -s $session
 tmux send-keys -t $session C-c
 tmux send-keys -t $session "bash" C-m
